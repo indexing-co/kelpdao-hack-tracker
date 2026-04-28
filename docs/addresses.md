@@ -53,10 +53,32 @@ Source: [Security Council Emergency Action — 2026-04-21](https://forum.arbitru
 
 | Role | Address / Hash | Status | Source |
 |---|---|---|---|
-| **Intermediary frozen wallet** ("Arbitrum: Intermediary Frozen Wallet") | `0x0000000000000000000000000000000000000DA0` | ✅ VERIFIED | [Security Council Emergency Action 2026-04-21](https://forum.arbitrum.foundation/t/security-council-emergency-action-21-04-2026/30803), [AIP: Approve Release of Frozen ETH](https://forum.arbitrum.foundation/t/constitutional-aip-approve-release-of-frozen-eth/30825) |
-| **L2 freeze transaction** (the impersonated transfer) | `0x5618044241dade84af6c41b7d84496dc9823700f98b79751e257608dac570f6b` | ✅ VERIFIED | [Security Council Emergency Action 2026-04-21](https://forum.arbitrum.foundation/t/security-council-emergency-action-21-04-2026/30803) |
-| Frozen amount (precise to wei) | `30,765.667501709008927568 ETH` | ✅ VERIFIED | [Security Council Emergency Action 2026-04-21](https://forum.arbitrum.foundation/t/security-council-emergency-action-21-04-2026/30803) |
-| **Recovery destination Safe** (2-of-3, signers: Aave Labs / KelpDAO / Certora) | `0xf228130ce4fAB082C7D5522c90833cec83A9C15e` | 🟡 verified-per-AIP (proposal not yet executed) | [AIP: Approve Release of Frozen ETH](https://forum.arbitrum.foundation/t/constitutional-aip-approve-release-of-frozen-eth/30825) |
+| **Intermediary frozen wallet** ("Arbitrum: Intermediary Frozen Wallet") | `0x0000000000000000000000000000000000000DA0` | ✅ VERIFIED on Arbiscan | [arbiscan.io/address/0x0...0DA0](https://arbiscan.io/address/0x0000000000000000000000000000000000000DA0) |
+| **L2 freeze transaction** (block 454,686,044) | `0x5618044241dade84af6c41b7d84496dc9823700f98b79751e257608dac570f6b` | ✅ VERIFIED on Arbiscan | [arbiscan.io/tx/...](https://arbiscan.io/tx/0x5618044241dade84af6c41b7d84496dc9823700f98b79751e257608dac570f6b) |
+| **L1 Inbox upgrade tx** (block 24,925,592, ~7 days ago) | `0x079984c56c5670108f5c6f664904178f9b364340351949a42e4637d1f645f770` | ✅ VERIFIED on Etherscan | [etherscan.io/tx/...](https://etherscan.io/tx/0x079984c56c5670108f5c6f664904178f9b364340351949a42e4637d1f645f770) |
+| **L1 Security Council 9** (the 9/12 emergency Safe) | `0xF06E95eF589D9c38af242a8AAee8375f14023F85` | ✅ VERIFIED on Etherscan label | [etherscan.io](https://etherscan.io/address/0xF06E95eF589D9c38af242a8AAee8375f14023F85) — labeled "Arbitrum Foundation: L1 Security Council 9" |
+| **Council signer EOA** (submitted the freeze tx) | `0x10590a5c93E8695bDb134c22f04C4d5b50755DC4` | ✅ VERIFIED on Etherscan | tx.from on the L1 Inbox upgrade tx |
+| **KelpDAO Exploiter 1** (Arbitrum side, address impersonated) | `0x5d3919F12bCc35c26Eee5F8226A9bee90c257Ccc` | ✅ VERIFIED on Arbiscan label | "Kelp DAO Exploiter 1" — funded the intermediary wallet |
+| **Recovery destination Safe** (2-of-3 — Aave Labs / KelpDAO / Certora) | `0xf228130ce4fAB082C7D5522c90833cec83A9C15e` | 🟡 verified-per-AIP (not yet executed) | [AIP: Approve Release of Frozen ETH](https://forum.arbitrum.foundation/t/constitutional-aip-approve-release-of-frozen-eth/30825) |
+
+### Frozen amount — both numbers are correct, they mean different things
+
+| Number | Meaning |
+|---|---|
+| `30,765.667501709008927568 ETH` | Attacker's pre-freeze balance (per Arbitrum forum announcement) |
+| `30,765.667401709008927568 ETH` | Amount that landed in `0x...0DA0` after L2 gas (Arbiscan-confirmed current balance) |
+
+The 0.0001 ETH delta = L2 transaction cost. Both numbers appear in different sources, both are right.
+
+### Arbitrum L1 contracts involved in the freeze (verified via Etherscan event logs)
+
+| Contract | Address | Role |
+|---|---|---|
+| Arbitrum: Delayed Inbox | `0x4dbd4fc535ac27206064b68ffcf827b0a60bab3f` | Temporarily upgraded to add `sendUnsignedTransactionOverride`, then reverted |
+| Arbitrum: Bridge | `0x8315177ab297ba92a06054ce80a67ed4dbd7ed3a` | Emitted `MessageDelivered` for the impersonated freeze message |
+| Arbitrum Foundation: Upgrade Executor | `0x3fffbadaf827559da092217e474760e2b2c3cedd` | Executed the upgrade-then-revert sequence |
+| Temp impersonation impl | `0x980D1F93FC5809c828539c46084801673FA6A859` | Active for one tx then replaced |
+| Original Inbox impl (restored) | `0x7C058ad1D0Ee415f7e7f30e62DB1BCf568470a10` | Current production impl |
 
 ### Attacker addresses on Arbitrum (from Aave gov forensics)
 

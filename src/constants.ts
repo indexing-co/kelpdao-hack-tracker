@@ -95,21 +95,33 @@ export const L1_INBOX_UPGRADE_TX: VerifiedTxHash = {
 export const FROZEN_FUNDS_INTERMEDIARY_WALLET: WatchedAddress = {
   address: '0x0000000000000000000000000000000000000DA0',
   status: 'VERIFIED',
-  source: 'forum.arbitrum.foundation/t/security-council-emergency-action-21-04-2026/30803',
+  source: 'arbiscan.io/address/0x0000000000000000000000000000000000000DA0',
   notes:
-    'Labeled "Arbitrum: Intermediary Frozen Wallet" on Arbiscan. Holds 30,765.667501709008927568 ETH. Releasable only by Arbitrum DAO Constitutional AIP.',
+    'Labeled "Arbitrum: Intermediary Frozen Wallet". Confirmed balance 30,765.667401709008927568 ETH on Arbiscan. Releasable only by Arbitrum DAO Constitutional AIP.',
 };
 
 export const L2_FREEZE_TX: VerifiedTxHash = {
   hash: '0x5618044241dade84af6c41b7d84496dc9823700f98b79751e257608dac570f6b',
   status: 'VERIFIED',
   chain: 'arbitrum',
-  source: 'forum.arbitrum.foundation/t/security-council-emergency-action-21-04-2026/30803',
+  source: 'arbiscan.io/tx/0x5618044241dade84af6c41b7d84496dc9823700f98b79751e257608dac570f6b',
   notes:
-    'L2 freeze tx — impersonated transfer from "KelpDAO Exploiter 1" address to 0x...0DA0 via the temporary Inbox upgrade. 2026-04-21 03:35:08 UTC.',
+    'L2 freeze tx at L2 block 454686044. Impersonated transfer from KelpDAO Exploiter 1 to 0x...0DA0 via L1 Inbox temporary upgrade.',
 };
 
-export const FROZEN_ETH_AMOUNT_WEI = '30765667501709008927568' as const;
+/** Amount transferred to 0x...0DA0 (after L2 gas). On-chain authoritative. */
+export const FROZEN_ETH_AMOUNT_WEI = '30765667401709008927568' as const;
+
+/** Attacker's pre-freeze balance per Arbitrum forum announcement (informational). */
+export const ATTACKER_BALANCE_PRE_FREEZE_WEI = '30765667501709008927568' as const;
+
+export const KELPDAO_EXPLOITER_1_ARBITRUM: WatchedAddress = {
+  address: '0x5d3919F12bCc35c26Eee5F8226A9bee90c257Ccc',
+  status: 'VERIFIED',
+  source: 'arbiscan.io — labeled "Kelp DAO Exploiter 1"',
+  notes:
+    'The address impersonated by the Security Council in the L2 freeze. Pre-freeze balance was 30,765.667501709008927568 ETH; post-freeze ~0.0001 ETH dust.',
+};
 
 export const RECOVERY_SAFE_ARBITRUM: WatchedAddress = {
   address: '0xf228130ce4fAB082C7D5522c90833cec83A9C15e',
@@ -141,15 +153,55 @@ export const AAVE_V3_POOL_ARBITRUM: WatchedAddress = {
 };
 
 // ============================================================================
-// Pending — Security Council multisig (next verification)
+// Arbitrum Foundation — verified L1 contracts involved in the freeze
 // ============================================================================
 
-export const ARBITRUM_SECURITY_COUNCIL: WatchedAddress = {
-  address: null,
-  status: 'PENDING',
+export const ARBITRUM_SECURITY_COUNCIL_9: WatchedAddress = {
+  address: '0xF06E95eF589D9c38af242a8AAee8375f14023F85',
+  status: 'VERIFIED',
+  source: 'etherscan.io — labeled "Arbitrum Foundation: L1 Security Council 9"',
   notes:
-    'Identify by reading tx.from on the L1 Inbox upgrade tx (L1_INBOX_UPGRADE_TX). Arbiscan lookup. Likely either emergency 9/12 or non-emergency 7/12 Council Safe.',
+    'L1 emergency Security Council 9/12 Safe. Executed the freeze via L1 Inbox temporary upgrade. Watch for ExecutionSuccess/ExecutionFailure events.',
 };
+
+export const SECURITY_COUNCIL_SIGNER_THAT_SUBMITTED: WatchedAddress = {
+  address: '0x10590a5c93E8695bDb134c22f04C4d5b50755DC4',
+  status: 'VERIFIED',
+  source: 'etherscan.io — tx.from on L1_INBOX_UPGRADE_TX',
+  notes: 'EOA of the Security Council 9/12 owner who submitted the freeze tx.',
+};
+
+export const ARBITRUM_DELAYED_INBOX: WatchedAddress = {
+  address: '0x4dbd4fc535ac27206064b68ffcf827b0a60bab3f',
+  status: 'VERIFIED',
+  source: 'etherscan.io — labeled "Arbitrum: Delayed Inbox"',
+  notes:
+    'The contract that was temporarily upgraded with sendUnsignedTransactionOverride. Emits Upgraded events.',
+};
+
+export const ARBITRUM_BRIDGE_L1: WatchedAddress = {
+  address: '0x8315177ab297ba92a06054ce80a67ed4dbd7ed3a',
+  status: 'VERIFIED',
+  source: 'etherscan.io — labeled "Arbitrum: Bridge"',
+  notes: 'Emits MessageDelivered for L1→L2 messages. Saw the impersonated freeze message.',
+};
+
+export const ARBITRUM_UPGRADE_EXECUTOR: WatchedAddress = {
+  address: '0x3fffbadaf827559da092217e474760e2b2c3cedd',
+  status: 'VERIFIED',
+  source: 'etherscan.io — labeled "Arbitrum Foundation: Upgrade Executor"',
+  notes:
+    'Emits UpgradeExecuted. The contract through which the Security Council executed the temporary Inbox upgrade.',
+};
+
+/** Temporary Inbox impl that contained sendUnsignedTransactionOverride. Active for one tx, then reverted. */
+export const ARBITRUM_INBOX_IMPL_IMPERSONATION = '0x980D1F93FC5809c828539c46084801673FA6A859' as const;
+
+/** Original Inbox impl, restored after the freeze. */
+export const ARBITRUM_INBOX_IMPL_ORIGINAL = '0x7C058ad1D0Ee415f7e7f30e62DB1BCf568470a10' as const;
+
+export const L1_FREEZE_BLOCK = 24925592 as const;
+export const L2_FREEZE_BLOCK = 454686044 as const;
 
 // ============================================================================
 // Event signatures — Gnosis Safe (Security Council multisig + recovery Safe)
@@ -216,6 +268,37 @@ export const GOVERNOR_EVENTS = [
 ] as const;
 
 // ============================================================================
+// Event signatures — Arbitrum L1 freeze mechanism (verified from etherscan logs)
+// ============================================================================
+
+export const ARBITRUM_INBOX_UPGRADED =
+  'event Upgraded(address indexed nextVersion)' as const;
+export const ARBITRUM_INBOX_UPGRADED_TOPIC0 =
+  '0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b' as const;
+
+export const ARBITRUM_BRIDGE_MESSAGE_DELIVERED =
+  'event MessageDelivered(uint256 indexed messageIndex, bytes32 indexed beforeInboxAcc, address inbox, uint8 kind, address sender, bytes32 messageDataHash, uint256 baseFeeL1, uint64 timestamp)' as const;
+export const ARBITRUM_BRIDGE_MESSAGE_DELIVERED_TOPIC0 =
+  '0x5e3c1311ea442664e8b1611bfabef659120ea7a0a2cfc0667700bebc69cbffe1' as const;
+
+export const ARBITRUM_INBOX_MESSAGE_DELIVERED =
+  'event InboxMessageDelivered(uint256 indexed messageNum, bytes data)' as const;
+export const ARBITRUM_INBOX_MESSAGE_DELIVERED_TOPIC0 =
+  '0xff64905f73a67fb594e0f940a8075a860db489ad991e032f48c81123eb52d60b' as const;
+
+export const ARBITRUM_UPGRADE_EXECUTED =
+  'event UpgradeExecuted(address indexed upgrade, uint256 value, bytes data)' as const;
+export const ARBITRUM_UPGRADE_EXECUTED_TOPIC0 =
+  '0x49f6851d1cd01a518db5bdea5cffbbe90276baa2595f74250b7472b96806302e' as const;
+
+export const ARBITRUM_FREEZE_EVENTS = [
+  ARBITRUM_INBOX_UPGRADED,
+  ARBITRUM_BRIDGE_MESSAGE_DELIVERED,
+  ARBITRUM_INBOX_MESSAGE_DELIVERED,
+  ARBITRUM_UPGRADE_EXECUTED,
+] as const;
+
+// ============================================================================
 // Native ETH transfers — IMPORTANT
 // ============================================================================
 // Native ETH transfers do NOT emit log events. They live at the transaction
@@ -234,8 +317,13 @@ const ALL_ENTRIES: readonly WatchedAddress[] = [
   ATTACKER_MULTI_CHAIN,
   LAYERZERO_ENDPOINT_V2_ETH,
   FROZEN_FUNDS_INTERMEDIARY_WALLET,
+  KELPDAO_EXPLOITER_1_ARBITRUM,
   RECOVERY_SAFE_ARBITRUM,
-  ARBITRUM_SECURITY_COUNCIL,
+  ARBITRUM_SECURITY_COUNCIL_9,
+  SECURITY_COUNCIL_SIGNER_THAT_SUBMITTED,
+  ARBITRUM_DELAYED_INBOX,
+  ARBITRUM_BRIDGE_L1,
+  ARBITRUM_UPGRADE_EXECUTOR,
   AAVE_V3_POOL_ARBITRUM,
   ...ATTACKER_ARBITRUM_ADDRESSES,
 ];
