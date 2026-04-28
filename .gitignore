@@ -31,3 +31,6 @@ pnpm-debug.log*
 # Misc
 coverage/
 *.tsbuildinfo
+
+# Content drafts live in Cortex, not in this public repo
+content/
