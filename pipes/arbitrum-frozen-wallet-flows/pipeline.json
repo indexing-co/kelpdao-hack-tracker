@@ -1,0 +1,16 @@
+{
+  "name": "arbitrum-frozen-wallet-flows",
+  "transformation": "arbitrum-frozen-wallet-flows",
+  "filter": "kelpdao-frozen-wallets",
+  "filterKeys": ["from_address", "to_address"],
+  "networks": ["arbitrum"],
+  "enabled": true,
+  "allowUnsafeBeats": true,
+  "delivery": {
+    "adapter": "POSTGRES",
+    "connectionUri": "${DATABASE_URL_DIRECT}",
+    "table": "wallet_flows",
+    "uniqueKeys": ["chain", "transaction_hash", "log_index", "watched_address", "direction"]
+  },
+  "_notes": "connectionUri must be the UNPOOLED Neon endpoint. The pooled '-pooler' endpoint silently drops writes from the Indexing Co Postgres adapter."
+}
