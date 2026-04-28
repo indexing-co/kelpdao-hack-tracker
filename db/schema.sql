@@ -38,14 +38,14 @@ CREATE TABLE IF NOT EXISTS multisig_events (
   block_timestamp   TIMESTAMPTZ NOT NULL,
   transaction_hash  TEXT        NOT NULL,
   log_index         INTEGER     NOT NULL,
-  multisig_address  TEXT        NOT NULL,
+  contract_address  TEXT        NOT NULL,                    -- the multisig (Safe) emitting the event
   event_name        TEXT        NOT NULL,
   decoded           JSONB       NOT NULL,
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (chain, transaction_hash, log_index)
 );
 
-CREATE INDEX IF NOT EXISTS idx_multisig_events_address_block ON multisig_events (multisig_address, block DESC);
+CREATE INDEX IF NOT EXISTS idx_multisig_events_contract_block ON multisig_events (contract_address, block DESC);
 
 -- ============================================================================
 -- arbitrum_freeze_events: L1 contract events that constitute the freeze action
