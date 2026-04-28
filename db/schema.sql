@@ -79,3 +79,51 @@ CREATE TABLE IF NOT EXISTS pipeline_metadata (
   last_synced_at    TIMESTAMPTZ,
   notes             TEXT
 );
+
+-- ============================================================================
+-- governance_proposals: recovery-related proposals across sources
+-- ============================================================================
+-- Tracks both off-chain (Snapshot, forum) and on-chain (Arbitrum Governor) proposals.
+-- Source tags: 'snapshot', 'arbitrum_core', 'arbitrum_treasury', 'forum'.
+
+CREATE TABLE IF NOT EXISTS governance_proposals (
+  id                TEXT        PRIMARY KEY,                 -- e.g. 'snapshot:0xabc...' or 'arb-core:42'
+  source            TEXT        NOT NULL,                    -- snapshot | arbitrum_core | arbitrum_treasury | forum
+  space             TEXT,                                    -- snapshot space (e.g. 'arbitrumfoundation.eth')
+  title             TEXT        NOT NULL,
+  description       TEXT,
+  url               TEXT,
+  state             TEXT        NOT NULL,                    -- pending | active | passed | rejected | executed | canceled
+  votes_for_wei     NUMERIC(78, 0),
+  votes_against_wei NUMERIC(78, 0),
+  votes_abstain_wei NUMERIC(78, 0),
+  quorum_wei        NUMERIC(78, 0),
+  proposer          TEXT,
+  start_at          TIMESTAMPTZ,
+  end_at            TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_proposals_source_state ON governance_proposals (source, state);
+CREATE INDEX IF NOT EXISTS idx_proposals_end_at ON governance_proposals (end_at DESC);
+
+-- ============================================================================
+-- governance_votes: individual votes on on-chain governor proposals
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS governance_votes (
+  id                BIGSERIAL   PRIMARY KEY,
+  proposal_id       TEXT        NOT NULL REFERENCES governance_proposals(id),
+  chain             TEXT        NOT NULL,
+  block             BIGINT      NOT NULL,
+  block_timestamp   TIMESTAMPTZ NOT NULL,
+  transaction_hash  TEXT        NOT NULL,
+  voter_address     TEXT        NOT NULL,
+  support           SMALLINT    NOT NULL,                    -- 0=against, 1=for, 2=abstain
+  weight_wei        NUMERIC(78, 0) NOT NULL,
+  reason            TEXT,
+  UNIQUE (proposal_id, voter_address, transaction_hash)
+);
+
+CREATE INDEX IF NOT EXISTS idx_votes_proposal ON governance_votes (proposal_id, block DESC);

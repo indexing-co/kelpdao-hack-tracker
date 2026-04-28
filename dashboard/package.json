@@ -9,10 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@indexing-co/charts-core": "file:../../Charting-Library/packages/core",
     "next": "^15.0.0",
+    "pg": "^8.13.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "pg": "^8.13.0"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

@@ -130,17 +130,60 @@ export async function getTableCounts(): Promise<{
   wallet_flows: number;
   multisig_events: number;
   arbitrum_freeze_events: number;
+  governance_proposals: number;
 }> {
   const rows = await query<{ table: string; count: string }>(
     `SELECT 'wallet_flows' AS table, COUNT(*)::text AS count FROM wallet_flows
      UNION ALL
      SELECT 'multisig_events', COUNT(*)::text FROM multisig_events
      UNION ALL
-     SELECT 'arbitrum_freeze_events', COUNT(*)::text FROM arbitrum_freeze_events`,
+     SELECT 'arbitrum_freeze_events', COUNT(*)::text FROM arbitrum_freeze_events
+     UNION ALL
+     SELECT 'governance_proposals', COUNT(*)::text FROM governance_proposals`,
   );
-  const out = { wallet_flows: 0, multisig_events: 0, arbitrum_freeze_events: 0 };
+  const out = {
+    wallet_flows: 0,
+    multisig_events: 0,
+    arbitrum_freeze_events: 0,
+    governance_proposals: 0,
+  };
   for (const r of rows) {
     out[r.table as keyof typeof out] = Number(r.count);
   }
   return out;
+}
+
+export interface GovernanceProposal {
+  id: string;
+  source: string;
+  space: string | null;
+  title: string;
+  description: string | null;
+  url: string | null;
+  state: string;
+  votes_for_wei: string | null;
+  votes_against_wei: string | null;
+  votes_abstain_wei: string | null;
+  quorum_wei: string | null;
+  proposer: string | null;
+  start_at: string | null;
+  end_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getGovernanceProposals(): Promise<GovernanceProposal[]> {
+  return query<GovernanceProposal>(
+    `SELECT * FROM governance_proposals
+     ORDER BY
+       CASE state
+         WHEN 'active' THEN 0
+         WHEN 'pending' THEN 1
+         WHEN 'passed' THEN 2
+         WHEN 'rejected' THEN 3
+         ELSE 4
+       END,
+       end_at DESC NULLS LAST,
+       created_at DESC`,
+  );
 }

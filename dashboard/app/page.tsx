@@ -1,5 +1,6 @@
 import { Layout } from '@/components/Layout';
 import { HeadlinePanel } from '@/components/HeadlinePanel';
+import { GovernancePanel } from '@/components/GovernancePanel';
 import {
   WalletFlowsTable,
   MultisigEventsTable,
@@ -10,6 +11,7 @@ import {
   getRecentWalletFlows,
   getRecentMultisigEvents,
   getRecentFreezeEvents,
+  getGovernanceProposals,
   getTableCounts,
 } from '@/lib/db';
 
@@ -18,11 +20,12 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function HomePage() {
-  const [status, flows, multisig, freeze, counts] = await Promise.all([
+  const [status, flows, multisig, freeze, proposals, counts] = await Promise.all([
     getFrozenWalletStatus(),
     getRecentWalletFlows(50),
     getRecentMultisigEvents(50),
     getRecentFreezeEvents(50),
+    getGovernanceProposals(),
     getTableCounts(),
   ]);
 
@@ -44,12 +47,14 @@ export default async function HomePage() {
         last_movement={status.last_movement}
       />
 
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
         <Counter label="wallet_flows" value={counts.wallet_flows} />
         <Counter label="multisig_events" value={counts.multisig_events} />
-        <Counter label="arbitrum_freeze_events" value={counts.arbitrum_freeze_events} />
+        <Counter label="freeze_events" value={counts.arbitrum_freeze_events} />
+        <Counter label="governance_proposals" value={counts.governance_proposals} />
       </div>
 
+      <GovernancePanel proposals={proposals} />
       <WalletFlowsTable rows={flows} />
       <MultisigEventsTable rows={multisig} />
       <FreezeEventsTable rows={freeze} />

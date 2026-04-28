@@ -1,4 +1,13 @@
-import { formatEthFromWei, formatRelative, formatUtc, shortHash, explorerTx } from '@/lib/format';
+'use client';
+
+import { KPICard, StatusDot } from '@indexing-co/charts-core';
+import {
+  formatEthFromWei,
+  formatRelative,
+  formatUtc,
+  shortHash,
+  explorerTx,
+} from '@/lib/format';
 import type { WalletFlow } from '@/lib/db';
 
 interface Props {
@@ -10,9 +19,14 @@ interface Props {
 
 export function HeadlinePanel(props: Props) {
   const balanceEth = formatEthFromWei(props.current_balance_wei, 6);
-  const inflowEth = formatEthFromWei(props.total_inflows_wei, 6);
-  const outflowEth = formatEthFromWei(props.total_outflows_wei, 6);
-  const recovered = props.current_balance_wei !== props.total_inflows_wei;
+  const inflowEth = formatEthFromWei(props.total_inflows_wei, 4);
+  const outflowEth = formatEthFromWei(props.total_outflows_wei, 4);
+  const moved = props.current_balance_wei !== props.total_inflows_wei;
+
+  const sharedKpiStyles = {
+    value: { color: '#fafafa', fontFamily: 'Inter, system-ui, sans-serif' },
+    label: { color: '#71717a', textTransform: 'uppercase' as const },
+  };
 
   return (
     <section className="border border-ink-800 rounded-lg bg-ink-900 p-8">
@@ -21,7 +35,7 @@ export function HeadlinePanel(props: Props) {
           <div className="text-xs uppercase tracking-widest text-ink-500 mb-2">
             Currently frozen on Arbitrum
           </div>
-          <div className="text-5xl font-semibold num-tabular">
+          <div className="text-5xl font-semibold num-tabular text-ink-100">
             {balanceEth} <span className="text-2xl text-ink-500">ETH</span>
           </div>
           <div className="text-sm text-ink-300 mt-2">
@@ -36,27 +50,50 @@ export function HeadlinePanel(props: Props) {
             </a>
           </div>
         </div>
-        <div className={`px-3 py-1 rounded text-xs font-medium ${recovered ? 'bg-accent-warn/20 text-accent-warn' : 'bg-accent-ok/20 text-accent-ok'}`}>
-          {recovered ? '⚠ Wallet has moved' : '● Frozen — last seen intact'}
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-ink-800">
+          <StatusDot status={moved ? 'warning' : 'success'} />
+          <span className="text-sm text-ink-100">
+            {moved ? 'Wallet has moved' : 'Frozen — last seen intact'}
+          </span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Stat label="Total inflows" value={`${inflowEth} ETH`} />
-        <Stat label="Total outflows" value={`${outflowEth} ETH`} />
-        <Stat
-          label="Last movement"
-          value={
-            props.last_movement
-              ? formatRelative(props.last_movement.block_timestamp)
-              : 'no movement yet'
-          }
-          sub={
-            props.last_movement
-              ? formatUtc(props.last_movement.block_timestamp)
-              : undefined
-          }
-        />
+        <div className="border border-ink-800 rounded-lg p-4 bg-ink-950">
+          <KPICard
+            label="Total inflows"
+            value={inflowEth}
+            suffix=" ETH"
+            variant="compact"
+            styles={sharedKpiStyles}
+          />
+        </div>
+        <div className="border border-ink-800 rounded-lg p-4 bg-ink-950">
+          <KPICard
+            label="Total outflows"
+            value={outflowEth}
+            suffix=" ETH"
+            variant="compact"
+            styles={sharedKpiStyles}
+          />
+        </div>
+        <div className="border border-ink-800 rounded-lg p-4 bg-ink-950">
+          <KPICard
+            label="Last movement"
+            value={
+              props.last_movement
+                ? formatRelative(props.last_movement.block_timestamp)
+                : 'no movement yet'
+            }
+            variant="compact"
+            styles={sharedKpiStyles}
+          />
+          {props.last_movement && (
+            <div className="text-xs text-ink-500 mt-1 num-tabular">
+              {formatUtc(props.last_movement.block_timestamp)}
+            </div>
+          )}
+        </div>
       </div>
 
       {props.last_movement && (
@@ -78,15 +115,5 @@ export function HeadlinePanel(props: Props) {
         </div>
       )}
     </section>
-  );
-}
-
-function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
-  return (
-    <div>
-      <div className="text-xs uppercase tracking-widest text-ink-500 mb-1">{label}</div>
-      <div className="text-xl font-medium num-tabular">{value}</div>
-      {sub && <div className="text-xs text-ink-500 mt-1 num-tabular">{sub}</div>}
-    </div>
   );
 }
