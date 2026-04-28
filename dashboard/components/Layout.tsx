@@ -37,7 +37,7 @@ function Header() {
             href={CONTACT}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3 py-1.5 rounded bg-accent text-ink-950 font-medium hover:bg-cyan-300 transition-colors"
+            className="btn-brand px-4 py-1.5"
           >
             Want this for your protocol? →
           </a>
@@ -66,7 +66,7 @@ function Footer() {
             href={CONTACT}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-accent hover:text-cyan-300"
+            className="text-brand-green hover:opacity-80 transition-opacity"
           >
             Want webhooks/alerts on this data? Contact us →
           </a>

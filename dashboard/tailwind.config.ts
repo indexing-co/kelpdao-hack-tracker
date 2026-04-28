@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import { colors, typography, radius } from './lib/brand';
 
 const config: Config = {
   content: [
@@ -9,25 +10,38 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        sans: typography.family.primary.split(',').map((s) => s.trim().replace(/['"]/g, '')),
+        mono: typography.family.code.split(',').map((s) => s.trim().replace(/['"]/g, '')),
       },
       colors: {
+        // Brand primaries
+        brand: {
+          green: colors.green,
+          pink: colors.pink,
+          gray: colors.gray,
+          whiteSmoke: colors.whiteSmoke,
+        },
+        // Neutral scale (named by surface intent so component code reads cleanly)
         ink: {
-          950: '#0A0A0B',
-          900: '#111113',
-          800: '#1a1a1d',
-          700: '#27272a',
-          500: '#71717a',
-          300: '#d4d4d8',
-          100: '#fafafa',
+          950: colors.ink950,
+          900: colors.ink900,
+          800: colors.ink800,
+          700: colors.ink700,
+          500: colors.ink500,
+          300: colors.ink300,
+          100: colors.ink100,
         },
+        // Status — used sparingly; brand only specifies green as semantic active
         accent: {
-          DEFAULT: '#22d3ee',
-          warn: '#f59e0b',
-          danger: '#ef4444',
-          ok: '#22c55e',
+          DEFAULT: colors.green,
+          warn: colors.warning,
+          danger: colors.danger,
+          ok: colors.success,
         },
+      },
+      borderRadius: {
+        card: radius.card, // 8px
+        pill: radius.pill, // 100px
       },
     },
   },

@@ -59,7 +59,7 @@ export default async function HomePage() {
       <MultisigEventsTable rows={multisig} />
       <FreezeEventsTable rows={freeze} />
 
-      <div className="mt-12 p-6 border border-ink-800 rounded-lg bg-ink-900 text-center">
+      <div className="mt-12 p-6 border border-ink-800 rounded-card bg-ink-900 text-center">
         <div className="text-sm text-ink-300 mb-3">
           Want webhooks/alerts on this data, or a similar tracker for your protocol?
         </div>
@@ -67,7 +67,7 @@ export default async function HomePage() {
           href="https://indexing.co/contact"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block px-5 py-2.5 rounded bg-accent text-ink-950 font-medium hover:bg-cyan-300 transition-colors"
+          className="btn-brand inline-block px-6 py-2.5"
         >
           Contact us →
         </a>

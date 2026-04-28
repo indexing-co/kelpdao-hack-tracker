@@ -1,0 +1,36 @@
+name: Sync Snapshot proposals
+
+on:
+  schedule:
+    # Every 15 minutes. GitHub cron is best-effort; actual delay can be 5-15 min.
+    # Tighten to */5 if a vote is open and we want lower lag.
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {} # allow manual run from the Actions tab
+
+concurrency:
+  group: sync-snapshot
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Snapshot sync
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: node scripts/sync-snapshot.mjs

@@ -53,7 +53,7 @@ export function WalletFlowsTable({ rows }: { rows: WalletFlow[] }) {
                       href={explorerTx(r.chain, r.transaction_hash)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-mono text-accent hover:text-cyan-300"
+                      className="font-mono text-brand-green hover:opacity-80 transition-opacity"
                     >
                       {shortHash(r.transaction_hash)}
                     </a>
@@ -109,7 +109,7 @@ export function MultisigEventsTable({ rows }: { rows: MultisigEvent[] }) {
                     href={explorerTx(r.chain, r.transaction_hash)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono text-accent hover:text-cyan-300"
+                    className="font-mono text-brand-green hover:opacity-80 transition-opacity"
                   >
                     {shortHash(r.transaction_hash)}
                   </a>
@@ -164,7 +164,7 @@ export function FreezeEventsTable({ rows }: { rows: FreezeEvent[] }) {
                     href={explorerTx(r.chain, r.transaction_hash)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono text-accent hover:text-cyan-300"
+                    className="font-mono text-brand-green hover:opacity-80 transition-opacity"
                   >
                     {shortHash(r.transaction_hash)}
                   </a>
@@ -249,7 +249,7 @@ function AddressCell({
       className="block hover:text-ink-100"
     >
       {label && (
-        <div className={`text-xs ${headline ? 'text-accent' : 'text-ink-300'}`}>
+        <div className={`text-xs ${headline ? 'text-brand-green' : 'text-ink-300'}`}>
           {headline && '★ '}
           {label}
         </div>

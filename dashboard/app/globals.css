@@ -3,18 +3,48 @@
 @tailwind utilities;
 
 @import url('https://rsms.me/inter/inter.css');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@500&display=swap');
+
+:root {
+  /* Indexing Co brand tokens — mirror of lib/brand.ts. Available as CSS vars
+     for any component that needs to consume them outside Tailwind. */
+  --brand-green: #4AF120;
+  --brand-pink: #DD67AB;
+  --brand-gray: #8E8E93;
+  --brand-white-smoke: #EDEDED;
+
+  --ink-950: #000000;
+  --ink-900: #0A0A0B;
+  --ink-800: #1a1a1d;
+  --ink-300: #C7C7CC;
+  --ink-100: #FFFFFF;
+}
 
 html, body {
-  background-color: #0A0A0B;
-  color: #fafafa;
+  background-color: var(--ink-950);
+  color: var(--ink-100);
   font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 /* Tabular numerics for monospace numeric alignment */
-.num-tabular {
-  font-variant-numeric: tabular-nums;
+.num-tabular { font-variant-numeric: tabular-nums; }
+
+/* Code spans use Fira Code per brand */
+code, .font-mono {
+  font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 500;
 }
+
+/* Brand button — pill, opacity hover */
+.btn-brand {
+  border-radius: var(--brand-radius-pill, 100px);
+  background: var(--brand-green);
+  color: var(--ink-950);
+  font-weight: 500;
+  transition: opacity 150ms ease;
+}
+.btn-brand:hover { opacity: 0.8; }

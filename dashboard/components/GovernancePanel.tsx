@@ -83,7 +83,7 @@ function ProposalCard({ proposal }: { proposal: GovernanceProposal }) {
                 href={proposal.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-accent"
+                className="hover:text-brand-green transition-colors"
               >
                 {proposal.title}
               </a>
@@ -99,13 +99,13 @@ function ProposalCard({ proposal }: { proposal: GovernanceProposal }) {
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
               <div className="text-xs text-ink-500 uppercase tracking-wider">For</div>
-              <div className="text-lg font-medium num-tabular text-accent-ok">{forPct}%</div>
+              <div className="text-lg font-medium num-tabular text-brand-green">{forPct}%</div>
             </div>
             <Sparkline
               data={[againstVotes, forVotes]}
               width={60}
               height={24}
-              color="#22c55e"
+              color="#4AF120"
             />
           </div>
         )}

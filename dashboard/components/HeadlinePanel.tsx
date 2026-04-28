@@ -1,6 +1,7 @@
 'use client';
 
 import { KPICard, StatusDot } from '@indexing-co/charts-core';
+import { colors } from '@/lib/brand';
 import {
   formatEthFromWei,
   formatRelative,
@@ -24,8 +25,8 @@ export function HeadlinePanel(props: Props) {
   const moved = props.current_balance_wei !== props.total_inflows_wei;
 
   const sharedKpiStyles = {
-    value: { color: '#fafafa', fontFamily: 'Inter, system-ui, sans-serif' },
-    label: { color: '#71717a', textTransform: 'uppercase' as const },
+    value: { color: colors.ink100, fontFamily: 'Inter, system-ui, sans-serif' },
+    label: { color: colors.ink500, textTransform: 'uppercase' as const },
   };
 
   return (
@@ -103,7 +104,7 @@ export function HeadlinePanel(props: Props) {
             href={explorerTx(props.last_movement.chain, props.last_movement.transaction_hash)}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-accent hover:text-cyan-300"
+            className="font-mono text-brand-green hover:opacity-80"
           >
             {shortHash(props.last_movement.transaction_hash)}
           </a>{' '}
