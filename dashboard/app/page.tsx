@@ -1,6 +1,7 @@
 import { Layout } from '@/components/Layout';
 import { HeadlinePanel } from '@/components/HeadlinePanel';
 import { GovernancePanel } from '@/components/GovernancePanel';
+import { ContributionTable } from '@/components/ContributionTable';
 import { Tabs, type TabKey } from '@/components/Tabs';
 import {
   WalletFlowsTable,
@@ -15,6 +16,7 @@ import {
   getGovernanceProposalsByCategory,
   getTableCounts,
   getRecoveryPoolStats,
+  getEthPriceUsd,
 } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -104,14 +106,19 @@ async function ArbitrumTab() {
 }
 
 async function GeneralTab() {
-  const [proposals, counts, pool] = await Promise.all([
+  const [proposals, pool, ethPrice] = await Promise.all([
     getGovernanceProposalsByCategory('recovery'),
-    getTableCounts(),
     getRecoveryPoolStats(),
+    getEthPriceUsd(),
   ]);
 
+  const backingProposals = proposals.filter((p) => p.commitment_type === 'backing');
+  const liquidityProposals = proposals.filter((p) => p.commitment_type === 'liquidity');
+  const infoProposals = proposals.filter((p) => p.commitment_type === 'info');
+
   const backing = Number(pool.backing_eth);
-  const liquidity = Number(pool.liquidity_eth);
+  const liquidityEth = Number(pool.liquidity_eth);
+  const liquidityUsd = Number(pool.liquidity_usd);
   const aip = Number(pool.aip_eth);
   const gap = Number(pool.gap_eth);
   const backingPct = gap > 0 ? Math.round((backing / gap) * 100) : 0;
@@ -120,42 +127,87 @@ async function GeneralTab() {
 
   return (
     <>
-      <section className="border border-ink-800 rounded-card bg-ink-900 p-8 mb-6">
-        <div className="text-xs uppercase tracking-widest text-ink-500 mb-2">
-          rsETH backing pledges
-        </div>
-        <div className="flex items-baseline gap-3 flex-wrap">
-          <div className="text-4xl font-semibold num-tabular">
-            {backing.toLocaleString()} ETH
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {/* Backing panel */}
+        <section className="border border-ink-800 rounded-card bg-ink-900 p-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs uppercase tracking-widest text-ink-500">
+              rsETH backing
+            </div>
+            <div className="px-2 py-0.5 rounded text-xs font-medium bg-brand-green/20 text-brand-green">
+              {backingPct}% pledged
+            </div>
           </div>
-          <div className="text-ink-500 text-lg">/ {gap.toLocaleString()} ETH gap</div>
-          <div className="ml-auto px-3 py-1 rounded text-xs font-medium bg-brand-green/20 text-brand-green">
-            {backingPct}% pledged
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <div className="text-3xl font-semibold num-tabular text-ink-100">
+              {backing.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            </div>
+            <div className="text-ink-300 text-base">ETH</div>
+            <div className="text-ink-500 text-sm">/ {gap.toLocaleString()} gap</div>
           </div>
-        </div>
-        <div className="text-sm text-ink-300 mt-3">
-          Direct ETH commitments to restore rsETH backing. Counts donations + the Mantle
-          MIP-34 credit facility. Excludes market-liquidity backstops (LayerZero's second 5K,
-          $20M TRON/HTX USDT, etc.) which are tracked separately.
-        </div>
-        <div className="mt-3 pt-3 border-t border-ink-800 text-xs text-ink-500 num-tabular">
-          + {aip.toLocaleString()} ETH from the Arbitrum Constitutional AIP if the May 12-26
-          vote passes ({totalIfAipPasses.toLocaleString()} ETH total — {totalIfAipPassesPct}% of gap)
-        </div>
-      </section>
+          <div className="text-xs text-ink-500 mt-2 num-tabular">
+            {pool.backing_contributors} contributors · donations + Mantle credit facility
+          </div>
+          <div className="mt-4 pt-3 border-t border-ink-800 text-xs text-ink-500 num-tabular">
+            + {aip.toLocaleString()} ETH from Arbitrum AIP if vote passes ({totalIfAipPassesPct}% of gap)
+          </div>
+        </section>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <Counter label="backing pledges" value={pool.backing_contributors} sub={`${backing.toLocaleString()} ETH`} />
-        <Counter label="liquidity backstops" value={pool.liquidity_contributors} sub={liquidity > 0 ? `+${liquidity.toLocaleString()} ETH` : 'USD-denominated'} />
-        <Counter label="info entries" value={counts.recovery_proposals - pool.backing_contributors - pool.liquidity_contributors} sub="no quantified pledge" />
-        <Counter label="arbitrum AIP" value={aip > 0 ? aip.toLocaleString() : '—'} sub="ETH (if vote passes)" />
+        {/* Liquidity panel */}
+        <section className="border border-ink-800 rounded-card bg-ink-900 p-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs uppercase tracking-widest text-ink-500">
+              Market liquidity backstops
+            </div>
+            <div className="px-2 py-0.5 rounded text-xs font-medium bg-brand-pink/20 text-brand-pink">
+              separate bucket
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <div className="text-3xl font-semibold num-tabular text-ink-100">
+              ${(liquidityUsd / 1_000_000).toFixed(0)}M
+            </div>
+            <div className="text-ink-300 text-base">USD</div>
+            {liquidityEth > 0 && (
+              <div className="text-ink-500 text-sm">+ {liquidityEth.toLocaleString()} ETH</div>
+            )}
+          </div>
+          <div className="text-xs text-ink-500 mt-2 num-tabular">
+            {pool.liquidity_contributors} contributors · TRON+HTX, Renzo, Babylon, Solana, etc.
+          </div>
+          <div className="mt-4 pt-3 border-t border-ink-800 text-xs text-ink-500">
+            Stablecoins + market support to absorb Aave bad debt. Does NOT close the rsETH backing gap.
+          </div>
+        </section>
       </div>
 
-      <GovernancePanel
-        proposals={proposals}
-        title="Recovery commitments"
-        subtitle="Cross-DAO pledges via tweet, forum post, and Snapshot proposal. Filtered into rsETH backing vs market liquidity."
+      <div className="text-xs text-ink-500 num-tabular mb-2">
+        ETH price reference: ${ethPrice.toLocaleString()} (CoinGecko, cached 10 min)
+      </div>
+
+      <ContributionTable
+        proposals={backingProposals}
+        ethPriceUsd={ethPrice}
+        variant="backing"
+        title="rsETH backing pledges"
+        subtitle="Direct ETH commitments. Counts donations + Mantle credit facility. Closes the 89,500 ETH gap."
       />
+
+      <ContributionTable
+        proposals={liquidityProposals}
+        ethPriceUsd={ethPrice}
+        variant="liquidity"
+        title="Market liquidity backstops"
+        subtitle="Stablecoin and market support to absorb Aave bad debt. Does NOT close the rsETH backing gap."
+      />
+
+      {infoProposals.length > 0 && (
+        <GovernancePanel
+          proposals={infoProposals}
+          title="Other recovery references"
+          subtitle="Coordination posts, official sites, and pledges without quantified amounts"
+        />
+      )}
     </>
   );
 }

@@ -1,5 +1,23 @@
 import { Pool } from 'pg';
 
+/**
+ * Fetch ETH price in USD from CoinGecko. Cached for 10 minutes.
+ * Falls back to $2,300 if the API is unreachable.
+ */
+export async function getEthPriceUsd(): Promise<number> {
+  try {
+    const res = await fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd',
+      { next: { revalidate: 600 } },
+    );
+    if (!res.ok) return 2300;
+    const data = (await res.json()) as { ethereum?: { usd?: number } };
+    return Number(data.ethereum?.usd) || 2300;
+  } catch {
+    return 2300;
+  }
+}
+
 declare global {
   // eslint-disable-next-line no-var
   var __pgPool: Pool | undefined;
@@ -179,14 +197,16 @@ export async function getTableCounts(): Promise<{
 
 export interface GovernanceProposal {
   id: string;
-  source: string; // snapshot | forum | tweet | arbitrum_core | arbitrum_treasury | onchain
+  source: string; // snapshot | forum | tweet | site | arbitrum_core | arbitrum_treasury | onchain
   category: 'arbitrum' | 'recovery';
+  commitment_type: 'backing' | 'liquidity' | 'info' | null;
   space: string | null;
   title: string;
   description: string | null;
   url: string | null;
   state: string;
   amount_eth: string | null;
+  amount_usd: string | null;
   votes_for_wei: string | null;
   votes_against_wei: string | null;
   votes_abstain_wei: string | null;
@@ -239,6 +259,7 @@ export async function getGovernanceProposalsByCategory(
 export async function getRecoveryPoolStats(): Promise<{
   backing_eth: string;
   liquidity_eth: string;
+  liquidity_usd: string;
   backing_contributors: number;
   liquidity_contributors: number;
   aip_eth: string;
@@ -247,20 +268,23 @@ export async function getRecoveryPoolStats(): Promise<{
   const rows = await query<{
     bucket: string;
     sum_eth: string;
+    sum_usd: string;
     cnt: string;
   }>(
     `SELECT
        (CASE WHEN category = 'arbitrum' THEN 'aip' ELSE commitment_type END) AS bucket,
        COALESCE(SUM(amount_eth), 0)::text AS sum_eth,
+       COALESCE(SUM(amount_usd), 0)::text AS sum_usd,
        COUNT(*)::text AS cnt
      FROM governance_proposals
-     WHERE amount_eth IS NOT NULL
+     WHERE amount_eth IS NOT NULL OR amount_usd IS NOT NULL
      GROUP BY 1`,
   );
   const map = new Map(rows.map((r) => [r.bucket, r]));
   return {
     backing_eth: map.get('backing')?.sum_eth ?? '0',
     liquidity_eth: map.get('liquidity')?.sum_eth ?? '0',
+    liquidity_usd: map.get('liquidity')?.sum_usd ?? '0',
     backing_contributors: Number(map.get('backing')?.cnt ?? '0'),
     liquidity_contributors: Number(map.get('liquidity')?.cnt ?? '0'),
     aip_eth: map.get('aip')?.sum_eth ?? '0',
