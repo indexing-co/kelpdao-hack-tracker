@@ -2,6 +2,7 @@ import { Layout } from '@/components/Layout';
 import { HeadlinePanel } from '@/components/HeadlinePanel';
 import { GovernancePanel } from '@/components/GovernancePanel';
 import { ContributionTable } from '@/components/ContributionTable';
+import { BridgeConfigPanel } from '@/components/BridgeConfigPanel';
 import { Tabs, type TabKey } from '@/components/Tabs';
 import {
   WalletFlowsTable,
@@ -101,6 +102,7 @@ async function ArbitrumTab() {
       </div>
 
       <GovernancePanel proposals={proposals} title="Arbitrum governance" subtitle="Constitutional AIPs and on-chain governor proposals tied to the freeze and release" />
+      <BridgeConfigPanel />
       <WalletFlowsTable rows={flows} />
       <MultisigEventsTable rows={multisig} />
       <FreezeEventsTable

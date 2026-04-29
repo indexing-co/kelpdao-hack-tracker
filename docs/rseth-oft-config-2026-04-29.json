@@ -1,0 +1,120 @@
+{
+  "readAt": "2026-04-29T15:50:01.052Z",
+  "oft": "0x85d456b2dff1fd8245387c0bfb64dfb700e98ef3",
+  "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+  "results": [
+    {
+      "src": "ethereum",
+      "dst": "arbitrum",
+      "ok": true,
+      "sendLib": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1",
+      "confirmations": 64,
+      "requiredDVNCount": 4,
+      "optionalDVNCount": 0,
+      "optionalDVNThreshold": 0,
+      "requiredDVNs": [
+        "0x380275805876Ff19055EA900CDb2B46a94ecF20D",
+        "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+        "0xa4fE5A5B9A846458a70Cd0748228aED3bF65c2cd",
+        "0xa59BA433ac34D2927232918Ef5B2eaAfcF130BA5"
+      ],
+      "optionalDVNs": []
+    },
+    {
+      "src": "ethereum",
+      "dst": "base",
+      "ok": true,
+      "sendLib": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1",
+      "confirmations": 64,
+      "requiredDVNCount": 4,
+      "optionalDVNCount": 0,
+      "optionalDVNThreshold": 0,
+      "requiredDVNs": [
+        "0x380275805876Ff19055EA900CDb2B46a94ecF20D",
+        "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+        "0xa4fE5A5B9A846458a70Cd0748228aED3bF65c2cd",
+        "0xa59BA433ac34D2927232918Ef5B2eaAfcF130BA5"
+      ],
+      "optionalDVNs": []
+    },
+    {
+      "src": "ethereum",
+      "dst": "optimism",
+      "ok": true,
+      "sendLib": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1",
+      "confirmations": 64,
+      "requiredDVNCount": 4,
+      "optionalDVNCount": 0,
+      "optionalDVNThreshold": 0,
+      "requiredDVNs": [
+        "0x380275805876Ff19055EA900CDb2B46a94ecF20D",
+        "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+        "0xa4fE5A5B9A846458a70Cd0748228aED3bF65c2cd",
+        "0xa59BA433ac34D2927232918Ef5B2eaAfcF130BA5"
+      ],
+      "optionalDVNs": []
+    },
+    {
+      "src": "ethereum",
+      "dst": "linea",
+      "ok": true,
+      "sendLib": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1",
+      "confirmations": 64,
+      "requiredDVNCount": 4,
+      "optionalDVNCount": 0,
+      "optionalDVNThreshold": 0,
+      "requiredDVNs": [
+        "0x380275805876Ff19055EA900CDb2B46a94ecF20D",
+        "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+        "0xa4fE5A5B9A846458a70Cd0748228aED3bF65c2cd",
+        "0xa59BA433ac34D2927232918Ef5B2eaAfcF130BA5"
+      ],
+      "optionalDVNs": []
+    },
+    {
+      "src": "arbitrum",
+      "dst": "ethereum",
+      "ok": true,
+      "sendLib": "0x975bcD720be66659e3EB3C0e4F1866a3020E493A",
+      "confirmations": 20,
+      "requiredDVNCount": 2,
+      "optionalDVNCount": 0,
+      "optionalDVNThreshold": 0,
+      "requiredDVNs": [
+        "0x2f55C492897526677C5B68fb199ea31E2c126416",
+        "0xD56e4eAb23cb81f43168F9F45211Eb027b9aC7cc"
+      ],
+      "optionalDVNs": []
+    },
+    {
+      "src": "base",
+      "dst": "ethereum",
+      "ok": true,
+      "sendLib": "0xB5320B0B3a13cC860893E2Bd79FCd7e13484Dda2",
+      "confirmations": 10,
+      "requiredDVNCount": 2,
+      "optionalDVNCount": 0,
+      "optionalDVNThreshold": 0,
+      "requiredDVNs": [
+        "0x9e059a54699a285714207b43B055483E78FAac25",
+        "0xD56e4eAb23cb81f43168F9F45211Eb027b9aC7cc"
+      ],
+      "optionalDVNs": []
+    },
+    {
+      "src": "optimism",
+      "dst": "ethereum",
+      "ok": true,
+      "sendLib": "0x1322871e4ab09Bc7f5717189434f97bBD9546e95",
+      "confirmations": 20,
+      "requiredDVNCount": 2,
+      "optionalDVNCount": 0,
+      "optionalDVNThreshold": 0,
+      "requiredDVNs": [
+        "0x6A02D83e8d433304bba74EF1c427913958187142",
+        "0xD56e4eAb23cb81f43168F9F45211Eb027b9aC7cc"
+      ],
+      "optionalDVNs": []
+    }
+  ]
+}
