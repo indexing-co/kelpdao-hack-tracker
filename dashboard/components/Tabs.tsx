@@ -1,10 +1,11 @@
 import Link from 'next/link';
 
-export type TabKey = 'arbitrum' | 'general';
+export type TabKey = 'arbitrum' | 'general' | 'about';
 
 const TABS: Array<{ key: TabKey; label: string; sublabel: string }> = [
   { key: 'arbitrum', label: 'Arbitrum freeze', sublabel: 'on-chain freeze, AIP, freeze action' },
   { key: 'general', label: 'Recovery', sublabel: 'cross-DAO commitments + tweets' },
+  { key: 'about', label: 'About', sublabel: 'why this dashboard exists' },
 ];
 
 export function Tabs({ active }: { active: TabKey }) {
@@ -13,10 +14,11 @@ export function Tabs({ active }: { active: TabKey }) {
       <nav className="flex gap-8 -mb-px" aria-label="Sections">
         {TABS.map((t) => {
           const isActive = t.key === active;
+          const href = t.key === 'arbitrum' ? '/' : `/?tab=${t.key}`;
           return (
             <Link
               key={t.key}
-              href={t.key === 'arbitrum' ? '/' : `/?tab=${t.key}`}
+              href={href}
               className={
                 'pb-3 pt-1 px-1 border-b-2 transition-colors ' +
                 (isActive
