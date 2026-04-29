@@ -1,11 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Read DATABASE_URL_DIRECT (or fall back to DATABASE_URL) at build/runtime.
-  // The Indexing Co pipeline writes through DATABASE_URL_DIRECT; the dashboard
-  // uses the pooled DATABASE_URL for app reads.
-  env: {
-    DATABASE_URL: process.env.DATABASE_URL,
-  },
+  // DO NOT use the `env` block to expose DATABASE_URL — that inlines the
+  // literal value into ALL bundles at build time, including any client
+  // component that imports it transitively. Server components read
+  // process.env.DATABASE_URL directly via lib/db.ts (server-only by virtue
+  // of the `pg` import being server-only). That's the correct pattern.
 };
 
 export default nextConfig;

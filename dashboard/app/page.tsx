@@ -334,35 +334,6 @@ function AboutTab() {
 
       <section className="border border-ink-800 rounded-card bg-ink-900 p-6 mb-6">
         <h3 className="text-sm font-medium text-ink-100 mb-3 uppercase tracking-wider">
-          Primary sources we lean on
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-          <SourceLink
-            label="Chainalysis: Inside the KelpDAO Bridge Exploit"
-            url="https://www.chainalysis.com/blog/kelpdao-bridge-exploit-april-2026/"
-          />
-          <SourceLink
-            label="LayerZero: KelpDAO Incident Statement"
-            url="https://layerzero.network/blog/kelpdao-incident-statement"
-          />
-          <SourceLink
-            label="Arbitrum Foundation: Security Council Emergency Action"
-            url="https://forum.arbitrum.foundation/t/security-council-emergency-action-21-04-2026/30803"
-          />
-          <SourceLink
-            label="Arbitrum Constitutional AIP (release of frozen ETH)"
-            url="https://forum.arbitrum.foundation/t/constitutional-aip-approve-release-of-frozen-eth/30825"
-          />
-          <SourceLink
-            label="Aave gov: rsETH incident report"
-            url="https://governance.aave.com/t/rseth-incident-report-april-20-2026/24580"
-          />
-          <SourceLink label="DeFi United live tracker" url="https://defiunited.fyi/" />
-        </div>
-      </section>
-
-      <section className="border border-ink-800 rounded-card bg-ink-900 p-6 mb-6">
-        <h3 className="text-sm font-medium text-ink-100 mb-3 uppercase tracking-wider">
           What's not tracked yet
         </h3>
         <ul className="space-y-2 text-sm text-ink-500">
@@ -373,20 +344,6 @@ function AboutTab() {
         </ul>
       </section>
     </>
-  );
-}
-
-function SourceLink({ label, url }: { label: string; url: string }) {
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-ink-300 hover:text-brand-green transition-colors flex items-center gap-1"
-    >
-      <span className="text-brand-green text-xs">↗</span>
-      <span className="truncate">{label}</span>
-    </a>
   );
 }
 

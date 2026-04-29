@@ -88,14 +88,16 @@ CREATE TABLE IF NOT EXISTS pipeline_metadata (
 
 CREATE TABLE IF NOT EXISTS governance_proposals (
   id                TEXT        PRIMARY KEY,                 -- e.g. 'snapshot:0xabc...' or 'tweet:layerzero-2026-04-28'
-  source            TEXT        NOT NULL,                    -- snapshot | arbitrum_core | arbitrum_treasury | forum_post | tweet | onchain
+  source            TEXT        NOT NULL,                    -- snapshot | arbitrum_core | arbitrum_treasury | forum_post | tweet | site | onchain
   category          TEXT        NOT NULL DEFAULT 'recovery', -- 'arbitrum' = Arbitrum-native (freeze, AIP, governor) | 'recovery' = cross-DAO commitments
+  commitment_type   TEXT,                                    -- 'backing' (rsETH gap) | 'liquidity' (market support) | 'info' (no quantified pledge)
   space             TEXT,                                    -- snapshot space, twitter handle, forum thread name
   title             TEXT        NOT NULL,
   description       TEXT,
   url               TEXT,
   state             TEXT        NOT NULL,                    -- pending | active | passed | rejected | executed | canceled
   amount_eth        NUMERIC(78, 18),                         -- pledge / proposal amount in ETH (informational, optional)
+  amount_usd        NUMERIC(20, 2),                          -- pledge in USD for stablecoin liquidity entries
   votes_for_wei     NUMERIC(78, 0),
   votes_against_wei NUMERIC(78, 0),
   votes_abstain_wei NUMERIC(78, 0),
