@@ -25,19 +25,24 @@ function Header() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Indexing Co — opens in a new tab"
-            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity text-ink-100"
           >
+            {/* Pixelated bunny mark (2-Bit variant from brandbook) */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/indexing-co-logo-light.svg"
+              src="/indexing-co-bit.svg"
               alt=""
-              width={26}
-              height={32}
+              width={36}
+              height={31}
               className="block"
             />
-            <span className="text-ink-100 font-medium text-base tracking-tight leading-none">
-              indexing co
-            </span>
+            {/* Wordmark, white fill baked in for dark background */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/indexing-co-wordmark-light.svg"
+              alt="Indexing Co"
+              className="block h-[20px] w-auto"
+            />
           </a>
           <span className="text-ink-700">|</span>
           <Link href="/" className="flex items-center gap-2">
@@ -78,7 +83,7 @@ function Footer() {
           <a href={INDEXING_CO} className="text-ink-300 hover:text-ink-100">
             Indexing Co
           </a>{' '}
-          · Powered by Indexing Co Pipes + Neon Postgres
+          · Powered by Indexing Co Pipes
         </div>
         <div className="flex items-center gap-4">
           <a href={REPO} target="_blank" rel="noopener noreferrer" className="text-ink-300 hover:text-ink-100">

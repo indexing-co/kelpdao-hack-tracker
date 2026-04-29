@@ -110,8 +110,21 @@ export function ContributionTable({
                   <td className="px-4 py-3 text-right text-ink-300 text-xs num-tabular">
                     {ethValue > 0 ? `${ethValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : '—'}
                   </td>
-                  <td className="px-4 py-3 pl-6 text-xs text-ink-300">
-                    {SOURCE_LABEL[p.source] ?? p.source}
+                  <td className="px-4 py-3 pl-6 text-xs">
+                    {p.url ? (
+                      <a
+                        href={p.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-brand-green hover:opacity-80 transition-opacity inline-flex items-center gap-1"
+                        title={p.url}
+                      >
+                        {SOURCE_LABEL[p.source] ?? p.source}
+                        <span className="text-ink-500" aria-hidden="true">↗</span>
+                      </a>
+                    ) : (
+                      <span className="text-ink-300">{SOURCE_LABEL[p.source] ?? p.source}</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">

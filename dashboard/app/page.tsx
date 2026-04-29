@@ -38,7 +38,7 @@ export default async function HomePage({
         <p className="text-ink-500 text-sm">
           On-chain status of the 30,765.67 ETH frozen on Arbitrum One after the
           April 2026 KelpDAO exploit, plus the cross-DAO recovery flow.
-          All data via Indexing Co pipelines into Neon Postgres.
+          All data via Indexing Co pipelines.
         </p>
       </div>
 
