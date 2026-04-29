@@ -87,13 +87,15 @@ CREATE TABLE IF NOT EXISTS pipeline_metadata (
 -- Source tags: 'snapshot', 'arbitrum_core', 'arbitrum_treasury', 'forum'.
 
 CREATE TABLE IF NOT EXISTS governance_proposals (
-  id                TEXT        PRIMARY KEY,                 -- e.g. 'snapshot:0xabc...' or 'arb-core:42'
-  source            TEXT        NOT NULL,                    -- snapshot | arbitrum_core | arbitrum_treasury | forum
-  space             TEXT,                                    -- snapshot space (e.g. 'arbitrumfoundation.eth')
+  id                TEXT        PRIMARY KEY,                 -- e.g. 'snapshot:0xabc...' or 'tweet:layerzero-2026-04-28'
+  source            TEXT        NOT NULL,                    -- snapshot | arbitrum_core | arbitrum_treasury | forum_post | tweet | onchain
+  category          TEXT        NOT NULL DEFAULT 'recovery', -- 'arbitrum' = Arbitrum-native (freeze, AIP, governor) | 'recovery' = cross-DAO commitments
+  space             TEXT,                                    -- snapshot space, twitter handle, forum thread name
   title             TEXT        NOT NULL,
   description       TEXT,
   url               TEXT,
   state             TEXT        NOT NULL,                    -- pending | active | passed | rejected | executed | canceled
+  amount_eth        NUMERIC(78, 18),                         -- pledge / proposal amount in ETH (informational, optional)
   votes_for_wei     NUMERIC(78, 0),
   votes_against_wei NUMERIC(78, 0),
   votes_abstain_wei NUMERIC(78, 0),
@@ -106,6 +108,7 @@ CREATE TABLE IF NOT EXISTS governance_proposals (
 );
 
 CREATE INDEX IF NOT EXISTS idx_proposals_source_state ON governance_proposals (source, state);
+CREATE INDEX IF NOT EXISTS idx_proposals_category_state ON governance_proposals (category, state);
 CREATE INDEX IF NOT EXISTS idx_proposals_end_at ON governance_proposals (end_at DESC);
 
 -- ============================================================================

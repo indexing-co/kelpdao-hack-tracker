@@ -126,41 +126,67 @@ export async function getRecentFreezeEvents(limit = 25): Promise<FreezeEvent[]> 
   );
 }
 
+/**
+ * Only the Upgraded + UpgradeExecuted events — the actual freeze "fingerprint".
+ * MessageDelivered + InboxMessageDelivered fire on every bridge message
+ * (~1,300 of them in our data, mostly routine L1->L2 traffic) so we filter
+ * them out for the freeze panel.
+ */
+export async function getRecentFreezeActionEvents(limit = 25): Promise<FreezeEvent[]> {
+  return query<FreezeEvent>(
+    `SELECT * FROM arbitrum_freeze_events
+     WHERE event_name IN ('Upgraded', 'UpgradeExecuted')
+     ORDER BY block DESC, log_index DESC LIMIT $1`,
+    [limit],
+  );
+}
+
 export async function getTableCounts(): Promise<{
   wallet_flows: number;
   multisig_events: number;
-  arbitrum_freeze_events: number;
-  governance_proposals: number;
+  freeze_actions: number; // Upgraded + UpgradeExecuted only — the 3 freeze fingerprint events
+  l1_messaging_events: number; // total rows in arbitrum_freeze_events (incl. routine bridge traffic)
+  arbitrum_proposals: number;
+  recovery_proposals: number;
 }> {
-  const rows = await query<{ table: string; count: string }>(
-    `SELECT 'wallet_flows' AS table, COUNT(*)::text AS count FROM wallet_flows
+  const rows = await query<{ key: string; count: string }>(
+    `SELECT 'wallet_flows' AS key, COUNT(*)::text AS count FROM wallet_flows
      UNION ALL
      SELECT 'multisig_events', COUNT(*)::text FROM multisig_events
      UNION ALL
-     SELECT 'arbitrum_freeze_events', COUNT(*)::text FROM arbitrum_freeze_events
+     SELECT 'freeze_actions', COUNT(*)::text FROM arbitrum_freeze_events
+       WHERE event_name IN ('Upgraded', 'UpgradeExecuted')
      UNION ALL
-     SELECT 'governance_proposals', COUNT(*)::text FROM governance_proposals`,
+     SELECT 'l1_messaging_events', COUNT(*)::text FROM arbitrum_freeze_events
+     UNION ALL
+     SELECT 'arbitrum_proposals', COUNT(*)::text FROM governance_proposals WHERE category = 'arbitrum'
+     UNION ALL
+     SELECT 'recovery_proposals', COUNT(*)::text FROM governance_proposals WHERE category = 'recovery'`,
   );
   const out = {
     wallet_flows: 0,
     multisig_events: 0,
-    arbitrum_freeze_events: 0,
-    governance_proposals: 0,
+    freeze_actions: 0,
+    l1_messaging_events: 0,
+    arbitrum_proposals: 0,
+    recovery_proposals: 0,
   };
   for (const r of rows) {
-    out[r.table as keyof typeof out] = Number(r.count);
+    out[r.key as keyof typeof out] = Number(r.count);
   }
   return out;
 }
 
 export interface GovernanceProposal {
   id: string;
-  source: string;
+  source: string; // snapshot | forum | tweet | arbitrum_core | arbitrum_treasury | onchain
+  category: 'arbitrum' | 'recovery';
   space: string | null;
   title: string;
   description: string | null;
   url: string | null;
   state: string;
+  amount_eth: string | null;
   votes_for_wei: string | null;
   votes_against_wei: string | null;
   votes_abstain_wei: string | null;
@@ -172,18 +198,44 @@ export interface GovernanceProposal {
   updated_at: string;
 }
 
+const PROPOSAL_ORDER = `ORDER BY
+  CASE state
+    WHEN 'active' THEN 0
+    WHEN 'pending' THEN 1
+    WHEN 'passed' THEN 2
+    WHEN 'rejected' THEN 3
+    ELSE 4
+  END,
+  end_at DESC NULLS LAST,
+  created_at DESC`;
+
 export async function getGovernanceProposals(): Promise<GovernanceProposal[]> {
+  return query<GovernanceProposal>(`SELECT * FROM governance_proposals ${PROPOSAL_ORDER}`);
+}
+
+export async function getGovernanceProposalsByCategory(
+  category: 'arbitrum' | 'recovery',
+): Promise<GovernanceProposal[]> {
   return query<GovernanceProposal>(
-    `SELECT * FROM governance_proposals
-     ORDER BY
-       CASE state
-         WHEN 'active' THEN 0
-         WHEN 'pending' THEN 1
-         WHEN 'passed' THEN 2
-         WHEN 'rejected' THEN 3
-         ELSE 4
-       END,
-       end_at DESC NULLS LAST,
-       created_at DESC`,
+    `SELECT * FROM governance_proposals WHERE category = $1 ${PROPOSAL_ORDER}`,
+    [category],
   );
+}
+
+/** Total committed ETH for the recovery pool (sums amount_eth on category='recovery'). */
+export async function getRecoveryPoolStats(): Promise<{
+  total_committed_eth: string;
+  contributors: number;
+  gap_eth: string; // hardcoded ~89,500 from research
+}> {
+  const rows = await query<{ total_eth: string | null; cnt: string }>(
+    `SELECT COALESCE(SUM(amount_eth), 0)::text AS total_eth, COUNT(*)::text AS cnt
+     FROM governance_proposals
+     WHERE category = 'recovery' AND amount_eth IS NOT NULL`,
+  );
+  return {
+    total_committed_eth: rows[0]?.total_eth ?? '0',
+    contributors: Number(rows[0]?.cnt ?? '0'),
+    gap_eth: '89500',
+  };
 }

@@ -18,16 +18,26 @@ const SOURCE_LABEL: Record<string, string> = {
   arbitrum_core: 'Arbitrum Core Governor',
   arbitrum_treasury: 'Arbitrum Treasury Governor',
   forum: 'Forum',
+  forum_post: 'Forum',
+  tweet: 'Tweet',
+  onchain: 'On-chain',
 };
 
-export function GovernancePanel({ proposals }: { proposals: GovernanceProposal[] }) {
+export function GovernancePanel({
+  proposals,
+  title = 'Recovery proposals',
+  subtitle,
+}: {
+  proposals: GovernanceProposal[];
+  title?: string;
+  subtitle?: string;
+}) {
   if (proposals.length === 0) {
     return (
       <section className="mt-8">
-        <h2 className="text-lg font-semibold mb-3">Recovery proposals</h2>
+        <h2 className="text-lg font-semibold mb-3">{title}</h2>
         <div className="border border-ink-800 rounded-lg bg-ink-900 px-6 py-12 text-center text-ink-500 text-sm">
-          No recovery proposals indexed yet. Run{' '}
-          <code className="font-mono text-ink-300">node scripts/sync-snapshot.mjs</code> to seed.
+          Nothing indexed yet for this category.
         </div>
       </section>
     );
@@ -37,12 +47,10 @@ export function GovernancePanel({ proposals }: { proposals: GovernanceProposal[]
     <section className="mt-8">
       <div className="flex items-baseline justify-between mb-3">
         <div>
-          <h2 className="text-lg font-semibold">Recovery proposals</h2>
-          <p className="text-sm text-ink-500 mt-0.5">
-            Off-chain (Snapshot, forum) and on-chain (Arbitrum Governor) proposals tied to the recovery
-          </p>
+          <h2 className="text-lg font-semibold">{title}</h2>
+          {subtitle && <p className="text-sm text-ink-500 mt-0.5">{subtitle}</p>}
         </div>
-        <div className="text-xs text-ink-500 num-tabular">{proposals.length} proposals</div>
+        <div className="text-xs text-ink-500 num-tabular">{proposals.length} entries</div>
       </div>
 
       <div className="space-y-3">

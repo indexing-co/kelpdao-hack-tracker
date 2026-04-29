@@ -123,11 +123,19 @@ export function MultisigEventsTable({ rows }: { rows: MultisigEvent[] }) {
   );
 }
 
-export function FreezeEventsTable({ rows }: { rows: FreezeEvent[] }) {
+export function FreezeEventsTable({
+  rows,
+  title = 'Arbitrum L1 freeze contracts',
+  subtitle = 'Inbox + Bridge + Upgrade Executor — the contracts the Security Council temporarily upgraded for the impersonated transfer',
+}: {
+  rows: FreezeEvent[];
+  title?: string;
+  subtitle?: string;
+}) {
   return (
     <Section
-      title="Arbitrum L1 freeze contracts"
-      subtitle="Inbox + Bridge + Upgrade Executor — the contracts the Security Council temporarily upgraded for the impersonated transfer"
+      title={title}
+      subtitle={subtitle}
       count={rows.length}
     >
       {rows.length === 0 ? (
