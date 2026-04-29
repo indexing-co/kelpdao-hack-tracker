@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@indexing-co/charts-core':
-        specifier: file:../../Charting-Library/packages/core
-        version: file:../../Charting-Library/packages/core(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: file:./vendor/indexing-co-charts-core-0.0.1.tgz
+        version: file:vendor/indexing-co-charts-core-0.0.1.tgz(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       next:
         specifier: ^15.0.0
         version: 15.5.15(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -211,8 +211,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@indexing-co/charts-core@file:../../Charting-Library/packages/core':
-    resolution: {directory: ../../Charting-Library/packages/core, type: directory}
+  '@indexing-co/charts-core@file:vendor/indexing-co-charts-core-0.0.1.tgz':
+    resolution: {integrity: sha512-vaQFft6vZCxLVu+PmVRhDjcTEZvSMk2cUlY3zDcUD3DHChyJu7RyoeJ+wieePf8vd172fDNUM+x0iC6XkEdhIw==, tarball: file:vendor/indexing-co-charts-core-0.0.1.tgz}
+    version: 0.0.1
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
@@ -1105,7 +1106,7 @@ snapshots:
   '@img/sharp-win32-x64@0.34.5':
     optional: true
 
-  '@indexing-co/charts-core@file:../../Charting-Library/packages/core(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@indexing-co/charts-core@file:vendor/indexing-co-charts-core-0.0.1.tgz(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       '@react-spring/web': 9.7.5(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@visx/axis': 3.12.0(react@19.2.5)

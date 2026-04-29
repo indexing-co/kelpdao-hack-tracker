@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@indexing-co/charts-core": "file:../../Charting-Library/packages/core",
+    "@indexing-co/charts-core": "file:./vendor/indexing-co-charts-core-0.0.1.tgz",
     "next": "^15.0.0",
     "pg": "^8.13.0",
     "react": "^19.0.0",
