@@ -242,6 +242,77 @@ export async function getGovernanceProposalsByCategory(
   );
 }
 
+// ============================================================================
+// LayerZero DVN census
+// ============================================================================
+
+export interface OAppDvnConfig {
+  id: string;
+  src_chain: string;
+  oapp_address: string;
+  oapp_name: string | null;
+  protocol: string | null;
+  dst_eid: number;
+  dst_chain: string | null;
+  send_library: string | null;
+  required_dvn_count: number;
+  optional_dvn_count: number;
+  optional_dvn_threshold: number;
+  required_dvns: string[];
+  optional_dvns: string[] | null;
+  confirmations: string;
+  read_at: string;
+  read_block: string | null;
+  notes: string | null;
+}
+
+/** Latest snapshot per (oapp, dst_eid). One row per route. */
+export async function getLatestDvnConfigs(): Promise<OAppDvnConfig[]> {
+  return query<OAppDvnConfig>(
+    `SELECT DISTINCT ON (src_chain, oapp_address, dst_eid)
+       *
+     FROM oapp_dvn_configs
+     ORDER BY src_chain, oapp_address, dst_eid, read_at DESC`,
+  );
+}
+
+export async function getDvnCensusStats(): Promise<{
+  total_oapps: number;
+  total_routes: number;
+  routes_at_1of1: number;
+  routes_4plus: number;
+  last_run: string | null;
+}> {
+  const rows = await query<{
+    total_oapps: string;
+    total_routes: string;
+    routes_1of1: string;
+    routes_4plus: string;
+    last_run: string | null;
+  }>(
+    `WITH latest AS (
+       SELECT DISTINCT ON (src_chain, oapp_address, dst_eid)
+         oapp_address, required_dvn_count, read_at
+       FROM oapp_dvn_configs
+       ORDER BY src_chain, oapp_address, dst_eid, read_at DESC
+     )
+     SELECT
+       COUNT(DISTINCT oapp_address)::text AS total_oapps,
+       COUNT(*)::text AS total_routes,
+       COUNT(*) FILTER (WHERE required_dvn_count = 1)::text AS routes_1of1,
+       COUNT(*) FILTER (WHERE required_dvn_count >= 4)::text AS routes_4plus,
+       MAX(read_at)::text AS last_run
+     FROM latest`,
+  );
+  return {
+    total_oapps: Number(rows[0]?.total_oapps ?? 0),
+    total_routes: Number(rows[0]?.total_routes ?? 0),
+    routes_at_1of1: Number(rows[0]?.routes_1of1 ?? 0),
+    routes_4plus: Number(rows[0]?.routes_4plus ?? 0),
+    last_run: rows[0]?.last_run ?? null,
+  };
+}
+
 /**
  * Recovery pool stats split by commitment_type so the dashboard can show
  * direct rsETH-backing pledges separately from market-liquidity backstops.

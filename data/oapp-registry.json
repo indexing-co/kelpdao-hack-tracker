@@ -1,0 +1,26 @@
+{
+  "_comment": "Registry of LayerZero V2 OApps to include in the DVN census. Add entries as you discover them. Dashboard reads the live config snapshot via scripts/run-dvn-census.mjs.",
+  "_seeded_at": "2026-04-29",
+  "_extension_pattern": "To add an OApp: paste a row with chain (where the OApp lives), oapp (the OFT/OFT-adapter address), name (display label), protocol (owning protocol). The census script handles the rest.",
+  "oapps": [
+    {
+      "chain": "ethereum",
+      "oapp": "0x85d456b2dff1fd8245387c0bfb64dfb700e98ef3",
+      "name": "rsETH OFT (Kelp)",
+      "protocol": "KelpDAO",
+      "notes": "Compromised in April 18 2026 exploit. Hardened to 4-of-4 DVNs on April 29."
+    },
+    {
+      "chain": "ethereum",
+      "oapp": "0x90fd843fa0222e4222b5b8f2c839699ee84e50a0",
+      "name": "ZAI OFT Adapter",
+      "protocol": "MAHA"
+    }
+  ],
+  "_known_dvns": {
+    "0x380275805876ff19055ea900cdb2b46a94ecf20d": "Horizen Labs",
+    "0x589dedbd617e0cbcb916a9223f4d1300c294236b": "LayerZero Labs",
+    "0xa4fe5a5b9a846458a70cd0748228aed3bf65c2cd": "Canary",
+    "0xa59ba433ac34d2927232918ef5b2eaafcf130ba5": "Nethermind"
+  }
+}

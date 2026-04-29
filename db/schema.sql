@@ -81,6 +81,38 @@ CREATE TABLE IF NOT EXISTS pipeline_metadata (
 );
 
 -- ============================================================================
+-- oapp_dvn_configs: LayerZero V2 OApp DVN configuration census
+-- ============================================================================
+-- Snapshot of every monitored OApp's outbound DVN config per destination chain.
+-- Read directly from EndpointV2.getConfig() via scripts/run-dvn-census.mjs.
+-- Powered by data/oapp-registry.json (registry of OApps to monitor).
+
+CREATE TABLE IF NOT EXISTS oapp_dvn_configs (
+  id                BIGSERIAL   PRIMARY KEY,
+  src_chain         TEXT        NOT NULL,                    -- ethereum | arbitrum | base | linea | optimism
+  oapp_address      TEXT        NOT NULL,                    -- the OApp / OFT contract on src_chain
+  oapp_name         TEXT,                                    -- display label (rsETH OFT, etc.)
+  protocol          TEXT,                                    -- owning protocol (KelpDAO, EtherFi, etc.)
+  dst_eid           INTEGER     NOT NULL,                    -- LayerZero destination endpoint ID
+  dst_chain         TEXT,                                    -- friendly name for dst_eid (arbitrum, base, etc.)
+  send_library      TEXT,                                    -- library address holding the config
+  required_dvn_count SMALLINT   NOT NULL,
+  optional_dvn_count SMALLINT   NOT NULL,
+  optional_dvn_threshold SMALLINT NOT NULL,
+  required_dvns     TEXT[]      NOT NULL,                    -- DVN contract addresses
+  optional_dvns     TEXT[],
+  confirmations     BIGINT      NOT NULL,
+  read_at           TIMESTAMPTZ NOT NULL DEFAULT now(),
+  read_block        BIGINT,                                  -- src_chain block number at read time
+  notes             TEXT,                                    -- registry-provided notes
+  UNIQUE (src_chain, oapp_address, dst_eid, read_at)
+);
+
+CREATE INDEX IF NOT EXISTS idx_oapp_dvn_oapp ON oapp_dvn_configs (oapp_address, dst_eid, read_at DESC);
+CREATE INDEX IF NOT EXISTS idx_oapp_dvn_count ON oapp_dvn_configs (required_dvn_count, read_at DESC);
+CREATE INDEX IF NOT EXISTS idx_oapp_dvn_chain ON oapp_dvn_configs (src_chain, read_at DESC);
+
+-- ============================================================================
 -- governance_proposals: recovery-related proposals across sources
 -- ============================================================================
 -- Tracks both off-chain (Snapshot, forum) and on-chain (Arbitrum Governor) proposals.
