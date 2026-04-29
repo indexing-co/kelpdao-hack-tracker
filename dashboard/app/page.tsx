@@ -110,42 +110,51 @@ async function GeneralTab() {
     getRecoveryPoolStats(),
   ]);
 
-  const committed = Number(pool.total_committed_eth);
+  const backing = Number(pool.backing_eth);
+  const liquidity = Number(pool.liquidity_eth);
+  const aip = Number(pool.aip_eth);
   const gap = Number(pool.gap_eth);
-  const pct = gap > 0 ? Math.round((committed / gap) * 100) : 0;
+  const backingPct = gap > 0 ? Math.round((backing / gap) * 100) : 0;
+  const totalIfAipPasses = backing + aip;
+  const totalIfAipPassesPct = gap > 0 ? Math.round((totalIfAipPasses / gap) * 100) : 0;
 
   return (
     <>
-      <section className="border border-ink-800 rounded-lg bg-ink-900 p-8 mb-6">
+      <section className="border border-ink-800 rounded-card bg-ink-900 p-8 mb-6">
         <div className="text-xs uppercase tracking-widest text-ink-500 mb-2">
-          DeFi United recovery pool
+          rsETH backing pledges
         </div>
         <div className="flex items-baseline gap-3 flex-wrap">
           <div className="text-4xl font-semibold num-tabular">
-            {committed.toLocaleString()} ETH
+            {backing.toLocaleString()} ETH
           </div>
           <div className="text-ink-500 text-lg">/ {gap.toLocaleString()} ETH gap</div>
           <div className="ml-auto px-3 py-1 rounded text-xs font-medium bg-brand-green/20 text-brand-green">
-            {pct}% pledged
+            {backingPct}% pledged
           </div>
         </div>
         <div className="text-sm text-ink-300 mt-3">
-          Confirmed direct pledges from {pool.contributors} parties so far. Tracks the broader
-          DeFi United bailout, separate from the frozen ETH that an Arbitrum DAO vote would
-          release.
+          Direct ETH commitments to restore rsETH backing. Counts donations + the Mantle
+          MIP-34 credit facility. Excludes market-liquidity backstops (LayerZero's second 5K,
+          $20M TRON/HTX USDT, etc.) which are tracked separately.
+        </div>
+        <div className="mt-3 pt-3 border-t border-ink-800 text-xs text-ink-500 num-tabular">
+          + {aip.toLocaleString()} ETH from the Arbitrum Constitutional AIP if the May 12-26
+          vote passes ({totalIfAipPasses.toLocaleString()} ETH total — {totalIfAipPassesPct}% of gap)
         </div>
       </section>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-        <Counter label="recovery_proposals" value={counts.recovery_proposals} />
-        <Counter label="committed_eth" value={Math.round(committed).toLocaleString()} />
-        <Counter label="contributors" value={pool.contributors} />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <Counter label="backing pledges" value={pool.backing_contributors} sub={`${backing.toLocaleString()} ETH`} />
+        <Counter label="liquidity backstops" value={pool.liquidity_contributors} sub={liquidity > 0 ? `+${liquidity.toLocaleString()} ETH` : 'USD-denominated'} />
+        <Counter label="info entries" value={counts.recovery_proposals - pool.backing_contributors - pool.liquidity_contributors} sub="no quantified pledge" />
+        <Counter label="arbitrum AIP" value={aip > 0 ? aip.toLocaleString() : '—'} sub="ETH (if vote passes)" />
       </div>
 
       <GovernancePanel
         proposals={proposals}
         title="Recovery commitments"
-        subtitle="Cross-DAO pledges via tweet, forum post, and Snapshot proposal"
+        subtitle="Cross-DAO pledges via tweet, forum post, and Snapshot proposal. Filtered into rsETH backing vs market liquidity."
       />
     </>
   );

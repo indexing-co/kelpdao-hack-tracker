@@ -222,20 +222,48 @@ export async function getGovernanceProposalsByCategory(
   );
 }
 
-/** Total committed ETH for the recovery pool (sums amount_eth on category='recovery'). */
+/**
+ * Recovery pool stats split by commitment_type so the dashboard can show
+ * direct rsETH-backing pledges separately from market-liquidity backstops.
+ *
+ * "Backing" = donations + loans that close the rsETH gap (Stani, EtherFi,
+ * Mantle credit facility, Aave DAO, etc.)
+ * "Liquidity" = market support, not direct backing (LayerZero's second
+ * tranche to Aave markets, USDT deployments, AAVE buys, etc.)
+ *
+ * The Arbitrum AIP (category='arbitrum') represents the frozen 30,766 ETH
+ * that would land in the recovery Safe if the vote passes. Counted
+ * separately so it doesn't conflate "voluntary pledges" with "frozen funds
+ * pending governance release".
+ */
 export async function getRecoveryPoolStats(): Promise<{
-  total_committed_eth: string;
-  contributors: number;
-  gap_eth: string; // hardcoded ~89,500 from research
+  backing_eth: string;
+  liquidity_eth: string;
+  backing_contributors: number;
+  liquidity_contributors: number;
+  aip_eth: string;
+  gap_eth: string;
 }> {
-  const rows = await query<{ total_eth: string | null; cnt: string }>(
-    `SELECT COALESCE(SUM(amount_eth), 0)::text AS total_eth, COUNT(*)::text AS cnt
+  const rows = await query<{
+    bucket: string;
+    sum_eth: string;
+    cnt: string;
+  }>(
+    `SELECT
+       (CASE WHEN category = 'arbitrum' THEN 'aip' ELSE commitment_type END) AS bucket,
+       COALESCE(SUM(amount_eth), 0)::text AS sum_eth,
+       COUNT(*)::text AS cnt
      FROM governance_proposals
-     WHERE category = 'recovery' AND amount_eth IS NOT NULL`,
+     WHERE amount_eth IS NOT NULL
+     GROUP BY 1`,
   );
+  const map = new Map(rows.map((r) => [r.bucket, r]));
   return {
-    total_committed_eth: rows[0]?.total_eth ?? '0',
-    contributors: Number(rows[0]?.cnt ?? '0'),
+    backing_eth: map.get('backing')?.sum_eth ?? '0',
+    liquidity_eth: map.get('liquidity')?.sum_eth ?? '0',
+    backing_contributors: Number(map.get('backing')?.cnt ?? '0'),
+    liquidity_contributors: Number(map.get('liquidity')?.cnt ?? '0'),
+    aip_eth: map.get('aip')?.sum_eth ?? '0',
     gap_eth: '89500',
   };
 }
