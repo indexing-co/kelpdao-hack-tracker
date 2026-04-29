@@ -25,16 +25,19 @@ function Header() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Indexing Co — opens in a new tab"
-            className="block hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/indexing-co-logo-light.svg"
-              alt="Indexing Co"
-              width={28}
-              height={35}
+              alt=""
+              width={26}
+              height={32}
               className="block"
             />
+            <span className="text-ink-100 font-medium text-base tracking-tight leading-none">
+              indexing co
+            </span>
           </a>
           <span className="text-ink-700">|</span>
           <Link href="/" className="flex items-center gap-2">

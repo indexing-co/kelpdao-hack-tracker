@@ -21,6 +21,7 @@ const SOURCE_LABEL: Record<string, string> = {
   forum_post: 'Forum',
   tweet: 'Tweet',
   onchain: 'On-chain',
+  site: 'Site',
 };
 
 export function GovernancePanel({
