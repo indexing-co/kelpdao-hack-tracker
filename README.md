@@ -2,7 +2,7 @@
 
 Open-source pipeline + public dashboard tracking the on-chain recovery of the **April 18, 2026 KelpDAO exploit** ($292M drained via a forged LayerZero cross-chain message).
 
-> Live dashboard: [kelpdao-hack-tracker.onrender.com](https://kelpdao-hack-tracker.onrender.com) (will move to `observatory.indexing.co` once DNS lands)
+> Live dashboard: [observatory.indexing.co/kelpdao-recovery](https://observatory.indexing.co/kelpdao-recovery)
 
 ---
 
