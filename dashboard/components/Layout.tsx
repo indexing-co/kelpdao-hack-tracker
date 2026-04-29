@@ -45,10 +45,12 @@ function Header() {
             />
           </a>
           <span className="text-ink-700">|</span>
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-sm tracking-wide text-ink-300">observatory</span>
-            <span className="text-ink-500">/</span>
-            <span className="font-medium text-ink-100">kelpdao recovery</span>
+          <Link href="/" className="text-sm tracking-wide text-ink-300 hover:text-ink-100 transition-colors">
+            observatory
+          </Link>
+          <span className="text-ink-500">/</span>
+          <Link href="/kelpdao-recovery" className="font-medium text-ink-100 hover:opacity-80 transition-opacity">
+            kelpdao recovery
           </Link>
         </div>
         <div className="flex items-center gap-4 text-sm">

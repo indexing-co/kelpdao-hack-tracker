@@ -14,7 +14,7 @@ export function Tabs({ active }: { active: TabKey }) {
       <nav className="flex gap-8 -mb-px" aria-label="Sections">
         {TABS.map((t) => {
           const isActive = t.key === active;
-          const href = t.key === 'arbitrum' ? '/' : `/?tab=${t.key}`;
+          const href = t.key === 'arbitrum' ? '/kelpdao-recovery' : `/kelpdao-recovery?tab=${t.key}`;
           return (
             <Link
               key={t.key}
