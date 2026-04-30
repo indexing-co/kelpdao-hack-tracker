@@ -1,11 +1,11 @@
 import Link from 'next/link';
 
-export type TabKey = 'arbitrum' | 'general' | 'census' | 'about';
+export type TabKey = 'arbitrum' | 'general' | 'monitor' | 'about';
 
 const TABS: Array<{ key: TabKey; label: string; sublabel: string }> = [
   { key: 'arbitrum', label: 'Arbitrum freeze', sublabel: 'on-chain freeze, AIP, freeze action' },
   { key: 'general', label: 'Recovery', sublabel: 'cross-DAO commitments + tweets' },
-  { key: 'census', label: 'DVN census', sublabel: "who's still on 1-of-1?" },
+  { key: 'monitor', label: 'DVN monitor', sublabel: 'config changes since the hack' },
   { key: 'about', label: 'About', sublabel: 'why this dashboard exists' },
 ];
 
@@ -15,7 +15,10 @@ export function Tabs({ active }: { active: TabKey }) {
       <nav className="flex gap-8 -mb-px" aria-label="Sections">
         {TABS.map((t) => {
           const isActive = t.key === active;
-          const href = t.key === 'arbitrum' ? '/kelpdao-recovery' : `/kelpdao-recovery?tab=${t.key}`;
+          const href =
+            t.key === 'arbitrum'
+              ? '/kelpdao-recovery'
+              : `/kelpdao-recovery?tab=${t.key}`;
           return (
             <Link
               key={t.key}

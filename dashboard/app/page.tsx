@@ -10,7 +10,7 @@ const TRACKERS = [
     slug: 'kelpdao-recovery',
     title: 'KelpDAO recovery',
     blurb:
-      "Live tracker of the 30,765.67 ETH frozen on Arbitrum after the April 2026 KelpDAO bridge exploit, the cross-DAO DeFi United recovery flow, and a LayerZero DVN census of who's still running 1-of-1 like rsETH did.",
+      "Live tracker of the 30,765.67 ETH frozen on Arbitrum after the April 2026 KelpDAO bridge exploit, the cross-DAO DeFi United recovery flow, and a DVN config monitor showing how Kelp hardened their bridge 5 days post-hack.",
     status: 'active',
   },
 ];
