@@ -93,9 +93,19 @@ function toScore(scores, choices, label) {
   return BigInt(Math.floor(v * 1e18)).toString();
 }
 
+function safeExternalUrl(url) {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url.trim());
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? parsed.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 async function upsertProposal(pool, p) {
   const id = `snapshot:${p.id}`;
-  const url = p.link || `https://snapshot.org/#/${p.space.id}/proposal/${p.id}`;
+  const url = safeExternalUrl(p.link) || `https://snapshot.org/#/${p.space.id}/proposal/${p.id}`;
   const startAt = p.start ? new Date(p.start * 1000).toISOString() : null;
   const endAt = p.end ? new Date(p.end * 1000).toISOString() : null;
 

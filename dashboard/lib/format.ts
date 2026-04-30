@@ -72,3 +72,13 @@ export function explorerTx(chain: string, hash: string): string {
 export function explorerAddress(chain: string, addr: string): string {
   return `${EXPLORER_BASE[chain] ?? EXPLORER_BASE.ethereum}/address/${addr}`;
 }
+
+export function safeExternalUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url.trim());
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? parsed.toString() : null;
+  } catch {
+    return null;
+  }
+}
