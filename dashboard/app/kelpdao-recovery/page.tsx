@@ -3,6 +3,7 @@ import { HeadlinePanel } from '@/components/HeadlinePanel';
 import { GovernancePanel } from '@/components/GovernancePanel';
 import { ContributionTable } from '@/components/ContributionTable';
 import { BridgeConfigPanel } from '@/components/BridgeConfigPanel';
+import { BridgeHardeningPanel } from '@/components/BridgeHardeningPanel';
 import { Tabs, type TabKey } from '@/components/Tabs';
 import {
   WalletFlowsTable,
@@ -18,6 +19,9 @@ import {
   getTableCounts,
   getRecoveryPoolStats,
   getEthPriceUsd,
+  getLatestDvnConfigs,
+  getDvnCensusStats,
+  type OAppDvnConfig,
 } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -31,7 +35,13 @@ export default async function HomePage({
   const params = await searchParams;
   const tabRaw = params.tab;
   const active: TabKey =
-    tabRaw === 'general' ? 'general' : tabRaw === 'about' ? 'about' : 'arbitrum';
+    tabRaw === 'general'
+      ? 'general'
+      : tabRaw === 'about'
+        ? 'about'
+        : tabRaw === 'monitor'
+          ? 'monitor'
+          : 'arbitrum';
 
   return (
     <Layout>
@@ -50,6 +60,8 @@ export default async function HomePage({
         <ArbitrumTab />
       ) : active === 'general' ? (
         <GeneralTab />
+      ) : active === 'monitor' ? (
+        <MonitorTab />
       ) : (
         <AboutTab />
       )}
@@ -230,6 +242,193 @@ async function GeneralTab() {
         />
       )}
     </>
+  );
+}
+
+const DVN_LABELS: Record<string, string> = {
+  '0x380275805876ff19055ea900cdb2b46a94ecf20d': 'Horizen Labs',
+  '0x589dedbd617e0cbcb916a9223f4d1300c294236b': 'LayerZero Labs',
+  '0xa4fe5a5b9a846458a70cd0748228aed3bf65c2cd': 'Canary',
+  '0xa59ba433ac34d2927232918ef5b2eaafcf130ba5': 'Nethermind',
+};
+
+const COMPROMISED_DVN = '0x589dedbd617e0cbcb916a9223f4d1300c294236b';
+
+function dvnLabel(addr: string): string {
+  return DVN_LABELS[addr.toLowerCase()] ?? `${addr.slice(0, 8)}…${addr.slice(-4)}`;
+}
+
+async function MonitorTab() {
+  const [rows, stats] = await Promise.all([getLatestDvnConfigs(), getDvnCensusStats()]);
+  const lastRun = stats.last_run ? new Date(stats.last_run).toISOString().slice(0, 10) : '—';
+
+  return (
+    <>
+      <div className="mb-6">
+        <p className="text-ink-300 text-sm leading-relaxed">
+          DVN config changes on LayerZero V2 OApps after the April 18 KelpDAO exploit.
+          The headline below is KelpDAO's own hardening — decoded from on-chain{' '}
+          <code className="font-mono text-xs text-ink-100">UlnConfigSet</code> events on the
+          mainnet ULN302 send library, with pre/post values pulled from{' '}
+          <code className="font-mono text-xs text-ink-100">EndpointV2.getConfig()</code> at
+          the block before and at the block of each event.
+        </p>
+        <p className="text-ink-500 text-xs mt-2 leading-relaxed">
+          Going forward: a daily cron snapshots configs for every OApp in the watchlist below,
+          so any future config change shows up here. Event-driven indexing of{' '}
+          <code className="font-mono text-xs text-ink-300">UlnConfigSet</code> across all
+          OApps (auto-discovery, full historical coverage) is the next step.
+        </p>
+      </div>
+
+      <BridgeHardeningPanel />
+
+      <section className="mb-6">
+        <div className="flex items-baseline justify-between mb-3 flex-wrap gap-2">
+          <div>
+            <h3 className="text-sm font-medium text-ink-100 uppercase tracking-wider">
+              Ongoing watchlist
+            </h3>
+            <p className="text-xs text-ink-500 mt-0.5">
+              Latest snapshot per (OApp, route). Daily cron — last run{' '}
+              <span className="num-tabular text-ink-300">{lastRun}</span>.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-sm">
+            <MonitorCounter label="OApps" value={stats.total_oapps} />
+            <MonitorCounter label="Routes" value={stats.total_routes} />
+            <MonitorCounter
+              label="At 4+ DVNs"
+              value={stats.routes_4plus}
+              ok={stats.routes_4plus > 0}
+            />
+          </div>
+        </div>
+        <WatchlistTable rows={rows} />
+      </section>
+
+      <div className="mt-8 text-xs text-ink-500">
+        How to extend the watchlist: add an entry to{' '}
+        <a
+          href="https://github.com/indexing-co/kelpdao-hack-tracker/blob/main/data/oapp-registry.json"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-brand-green hover:opacity-80"
+        >
+          data/oapp-registry.json
+        </a>{' '}
+        and run{' '}
+        <code className="font-mono text-ink-300">node scripts/run-dvn-census.mjs</code>.
+        PRs welcome.
+      </div>
+    </>
+  );
+}
+
+function WatchlistTable({ rows }: { rows: OAppDvnConfig[] }) {
+  if (rows.length === 0) {
+    return (
+      <div className="border border-ink-800 rounded-card bg-ink-900 px-6 py-12 text-center text-ink-500 text-sm">
+        No watchlist data yet. Run <code className="font-mono">node scripts/run-dvn-census.mjs</code>.
+      </div>
+    );
+  }
+  return (
+    <div className="border border-ink-800 rounded-card bg-ink-900 overflow-hidden">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-ink-800 text-xs uppercase tracking-wider text-ink-500">
+            <th className="text-left px-4 py-2.5 font-medium">OApp</th>
+            <th className="text-left px-4 py-2.5 font-medium">Route</th>
+            <th className="text-right px-4 py-2.5 font-medium">DVNs</th>
+            <th className="text-right px-4 py-2.5 font-medium">Confirmations</th>
+            <th className="text-left px-4 py-2.5 font-medium">DVN set</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const isOneOfOne = r.required_dvn_count === 1;
+            return (
+              <tr
+                key={`${r.src_chain}-${r.oapp_address}-${r.dst_eid}`}
+                className={`border-b border-ink-800 last:border-b-0 ${
+                  isOneOfOne ? 'bg-accent-warn/5' : ''
+                }`}
+              >
+                <td className="px-4 py-3">
+                  <a
+                    href={`https://etherscan.io/address/${r.oapp_address}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-brand-green transition-colors"
+                  >
+                    <div className="font-medium text-ink-100">
+                      {r.oapp_name ?? '(unnamed)'}
+                    </div>
+                    <div className="text-xs text-ink-500 mt-0.5">{r.protocol ?? ''}</div>
+                  </a>
+                </td>
+                <td className="px-4 py-3 text-xs text-ink-300">
+                  {r.src_chain} → {r.dst_chain ?? r.dst_eid}
+                </td>
+                <td
+                  className={`px-4 py-3 text-right num-tabular font-medium ${
+                    isOneOfOne
+                      ? 'text-accent-warn'
+                      : r.required_dvn_count >= 4
+                        ? 'text-brand-green'
+                        : 'text-ink-100'
+                  }`}
+                >
+                  {r.required_dvn_count}-of-{r.required_dvn_count}
+                </td>
+                <td className="px-4 py-3 text-right num-tabular text-ink-100">
+                  {r.confirmations}
+                </td>
+                <td className="px-4 py-3 text-xs">
+                  <div className="flex flex-wrap gap-1">
+                    {r.required_dvns.map((d) => (
+                      <a
+                        key={d}
+                        href={`https://etherscan.io/address/${d}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`px-1.5 py-0.5 rounded font-mono text-xs hover:opacity-80 ${
+                          d.toLowerCase() === COMPROMISED_DVN
+                            ? 'bg-accent-warn/20 text-accent-warn'
+                            : 'bg-ink-800 text-ink-300'
+                        }`}
+                        title={d}
+                      >
+                        {dvnLabel(d)}
+                      </a>
+                    ))}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function MonitorCounter({
+  label,
+  value,
+  ok,
+}: {
+  label: string;
+  value: number | string;
+  ok?: boolean;
+}) {
+  const accentClass = ok ? 'text-brand-green' : 'text-ink-100';
+  return (
+    <div className="border border-ink-800 rounded bg-ink-900 px-3 py-2">
+      <div className="text-xs uppercase tracking-widest text-ink-500">{label}</div>
+      <div className={`text-base font-medium num-tabular ${accentClass}`}>{value}</div>
+    </div>
   );
 }
 
