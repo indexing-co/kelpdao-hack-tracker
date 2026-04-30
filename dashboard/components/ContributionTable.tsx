@@ -1,4 +1,5 @@
 import type { GovernanceProposal } from '@/lib/db';
+import { safeExternalUrl } from '@/lib/format';
 
 const STATE_DOT: Record<string, string> = {
   active: 'bg-brand-green',
@@ -76,18 +77,22 @@ export function ContributionTable({
               const usd = p.amount_usd ? Number(p.amount_usd) : null;
               const usdValue = computeUsd(p, ethPriceUsd);
               const ethValue = computeEth(p, ethPriceUsd);
+              const proposalUrl = safeExternalUrl(p.url);
               return (
                 <tr key={p.id} className="border-b border-ink-800 last:border-b-0 hover:bg-ink-950/50">
                   <td className="px-4 py-3">
-                    <a
-                      href={p.url ?? '#'}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-brand-green transition-colors"
-                    >
-                      <div className="font-medium text-ink-100">{p.proposer ?? 'Unknown'}</div>
-                      <div className="text-xs text-ink-500 mt-0.5 truncate max-w-xs">{p.title}</div>
-                    </a>
+                    {proposalUrl ? (
+                      <a
+                        href={proposalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-brand-green transition-colors"
+                      >
+                        <ContributorLabel proposal={p} />
+                      </a>
+                    ) : (
+                      <ContributorLabel proposal={p} />
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right num-tabular">
                     {eth !== null ? (
@@ -111,13 +116,13 @@ export function ContributionTable({
                     {ethValue > 0 ? `${ethValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : '—'}
                   </td>
                   <td className="px-4 py-3 pl-6 text-xs">
-                    {p.url ? (
+                    {proposalUrl ? (
                       <a
-                        href={p.url}
+                        href={proposalUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-brand-green hover:opacity-80 transition-opacity inline-flex items-center gap-1"
-                        title={p.url}
+                        title={proposalUrl}
                       >
                         {SOURCE_LABEL[p.source] ?? p.source}
                         <span className="text-ink-500" aria-hidden="true">↗</span>
@@ -156,6 +161,15 @@ export function ContributionTable({
         </table>
       </div>
     </section>
+  );
+}
+
+function ContributorLabel({ proposal }: { proposal: GovernanceProposal }) {
+  return (
+    <>
+      <div className="font-medium text-ink-100">{proposal.proposer ?? 'Unknown'}</div>
+      <div className="text-xs text-ink-500 mt-0.5 truncate max-w-xs">{proposal.title}</div>
+    </>
   );
 }
 

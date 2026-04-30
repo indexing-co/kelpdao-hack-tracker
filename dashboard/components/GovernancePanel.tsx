@@ -1,7 +1,7 @@
 'use client';
 
 import { Sparkline } from '@indexing-co/charts-core';
-import { formatRelative, formatUtc } from '@/lib/format';
+import { formatRelative, formatUtc, safeExternalUrl } from '@/lib/format';
 import type { GovernanceProposal } from '@/lib/db';
 
 const STATE_STYLE: Record<string, string> = {
@@ -66,6 +66,7 @@ export function GovernancePanel({
 function ProposalCard({ proposal }: { proposal: GovernanceProposal }) {
   const stateClass = STATE_STYLE[proposal.state] ?? 'bg-ink-800 text-ink-300';
   const sourceLabel = SOURCE_LABEL[proposal.source] ?? proposal.source;
+  const proposalUrl = safeExternalUrl(proposal.url);
   const forVotes = proposal.votes_for_wei ? Number(BigInt(proposal.votes_for_wei) / BigInt(1e18)) : 0;
   const againstVotes = proposal.votes_against_wei
     ? Number(BigInt(proposal.votes_against_wei) / BigInt(1e18))
@@ -87,9 +88,9 @@ function ProposalCard({ proposal }: { proposal: GovernanceProposal }) {
             )}
           </div>
           <h3 className="font-medium text-ink-100 leading-snug">
-            {proposal.url ? (
+            {proposalUrl ? (
               <a
-                href={proposal.url}
+                href={proposalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-brand-green transition-colors"
