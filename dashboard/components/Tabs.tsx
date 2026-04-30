@@ -1,10 +1,11 @@
 import Link from 'next/link';
 
-export type TabKey = 'arbitrum' | 'general' | 'about';
+export type TabKey = 'arbitrum' | 'general' | 'census' | 'about';
 
 const TABS: Array<{ key: TabKey; label: string; sublabel: string }> = [
   { key: 'arbitrum', label: 'Arbitrum freeze', sublabel: 'on-chain freeze, AIP, freeze action' },
   { key: 'general', label: 'Recovery', sublabel: 'cross-DAO commitments + tweets' },
+  { key: 'census', label: 'DVN census', sublabel: "who's still on 1-of-1?" },
   { key: 'about', label: 'About', sublabel: 'why this dashboard exists' },
 ];
 

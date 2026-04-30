@@ -10,14 +10,7 @@ const TRACKERS = [
     slug: 'kelpdao-recovery',
     title: 'KelpDAO recovery',
     blurb:
-      "Live tracker of the 30,765.67 ETH frozen on Arbitrum after the April 2026 KelpDAO bridge exploit, plus the cross-DAO DeFi United recovery flow.",
-    status: 'active',
-  },
-  {
-    slug: 'layerzero-dvn-census',
-    title: 'LayerZero DVN census',
-    blurb:
-      "Who's still running 1-of-1 DVN? Live snapshot of LayerZero V2 OApp configurations across the OFTs we monitor. The same exposure profile that drained $292M from rsETH.",
+      "Live tracker of the 30,765.67 ETH frozen on Arbitrum after the April 2026 KelpDAO bridge exploit, the cross-DAO DeFi United recovery flow, and a LayerZero DVN census of who's still running 1-of-1 like rsETH did.",
     status: 'active',
   },
 ];
