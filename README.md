@@ -26,7 +26,7 @@ This is also a working demo of [Indexing Co](https://indexing.co)'s blockchain d
 |---|---|
 | Indexing | [Indexing Co Pipes](https://indexing.co) (event listeners + transformation functions) |
 | Database | Neon Postgres (serverless, branched per pipeline) |
-| Frontend | Next.js 15 + Vercel |
+| Frontend | Next.js 15 (in [`indexing-co/observatory`](https://github.com/indexing-co/observatory) umbrella, deployed via Render) |
 | Charts | [`indexing-co/Charting-Library`](https://github.com/indexing-co/Charting-Library) |
 | Contracts | Arbitrum Security Council multisig + intermediary wallet |
 
@@ -36,15 +36,11 @@ This is also a working demo of [Indexing Co](https://indexing.co)'s blockchain d
 .
 ├── pipes/         # Indexing Co pipe definitions + transform functions
 ├── db/            # Neon schema + migrations
-├── dashboard/     # Next.js frontend
-└── docs/          # Pipeline architecture, content notes
+├── docs/          # Pipeline architecture, content notes
+└── scripts/       # One-off backfill + maintenance scripts
 ```
 
-*Structure populated as the build progresses.*
-
-## Run locally
-
-*Setup instructions arriving with the first pipe commit.*
+The **dashboard UI lives at [`indexing-co/observatory`](https://github.com/indexing-co/observatory)** — every Indexing Co incident tracker shares one Next.js app at `observatory.indexing.co`. This repo owns the pipes, the schema, and the research; the umbrella owns the routes (`/kelpdao-recovery`, `/layerzero-dvn-census`).
 
 ## Want this for your protocol?
 
