@@ -57,33 +57,60 @@ curl -X POST 'https://app.indexing.co/dw/pipelines/' \
   -H "X-API-KEY: $API_KEY" -H 'Content-Type: application/json' \
   -d @/tmp/pipeline.json
 
-# 6. Sanity backfill — last 1000 blocks (small)
-LATEST=$(...)  # as above
-curl -X POST 'https://app.indexing.co/dw/pipelines/layerzero-v2-packets-sent/backfill' \
-  -H "X-API-KEY: $API_KEY" -H 'Content-Type: application/json' \
-  -d "{\"network\":\"ethereum\",\"value\":\"0x1a44076050125825900e736c501f859c50fE728c\",\"beatStart\":$((LATEST-1000)),\"beatEnd\":$LATEST}"
+# 6. Backfill — use the WALLET endpoint, not block-range (Brock's call).
+#
+# Why: this pipe filters on a single contract (EndpointV2). Our transform
+# only reads logs emitted by that address; it doesn't touch any other
+# contract or block-level data. The wallet-backfill endpoint queues only
+# the beats (blocks) where the address had activity, so we skip the ~95%
+# of blocks that don't touch EndpointV2 at all. Way more efficient than
+# beatStart/beatEnd, which scans every block in the range.
+#
+# Endpoint: POST /dw/pipelines/{name}/backfill/{address}
+# https://docs.indexing.co/guide/pipelines/backfill-wallet
+#
+# This queues ALL historical beats matching EndpointV2 across the
+# pipeline's `networks` (just `ethereum` for this PR). No block-range
+# parameter — it's all-history. That's actually what we want for the C6
+# headline ("% of LZ V2 messages using LZ Labs DVN") because the full
+# denominator is more useful than a 90-day window.
+#
+# If we ever want a windowed backfill, fall back to the block-range
+# endpoint (POST /dw/pipelines/{name}/backfill with beatStart/beatEnd).
+curl -X POST 'https://app.indexing.co/dw/pipelines/layerzero-v2-packets-sent/backfill/0x1a44076050125825900e736c501f859c50fE728c' \
+  -H "X-API-KEY: $API_KEY"
+# Response example: {"message":"queued 142 beats for backfill"}
+# (number depends on how many blocks across history have EndpointV2 logs)
 
 # 7. Verify rows arrived in Neon
 psql "$DATABASE_URL_DIRECT" -c 'SELECT COUNT(*), MIN(block), MAX(block) FROM oapp_packets_sent;'
-
-# 8. ONLY if 6+7 look good: full 90-day backfill
-LATEST=$(...)
-curl -X POST 'https://app.indexing.co/dw/pipelines/layerzero-v2-packets-sent/backfill' \
-  -H "X-API-KEY: $API_KEY" -H 'Content-Type: application/json' \
-  -d "{\"network\":\"ethereum\",\"value\":\"0x1a44076050125825900e736c501f859c50fE728c\",\"beatStart\":$((LATEST - 90*7200)),\"beatEnd\":$LATEST}"
 ```
+
+## Why wallet-backfill works for this pipe (and when it wouldn't)
+
+What `POST /dw/pipelines/{name}/backfill/{wallet}` actually does: Indexing Co maintains an internal address index — a precomputed lookup of "which blocks did this address appear in" across every chain they index. The endpoint takes the pipeline name and an address, looks up that address in the index, and queues only the matching blocks for the pipeline's filter+transform+delivery chain. The transform runs unchanged — same JS, same decode, same destination. Only the *set of blocks* that hits the transform differs.
+
+For this pipe, the wallet-backfill is a perfect fit because:
+
+- **The filter is a single contract.** `EndpointV2 = 0x1a44076050125825900e736c501f859c50fE728c`. The wallet-backfill takes one address, our filter has one address. They match.
+- **The transform only reads logs from that contract.** It iterates `tx.receipt.logs`, hard-checks `log.address === EndpointV2`, ignores everything else. No state reads on other contracts, no block-level data beyond `block.timestamp` and `block.number`. So if a block has zero EndpointV2 activity, the transform produces zero rows for it. Skipping that block is safe and free.
+- **No date-window requirement.** We *want* the full denominator for the C6 claim ("% of LZ V2 messages using LZ Labs DVN"). The wallet-backfill's all-history default is what we want anyway.
+
+When wallet-backfill would NOT be the right tool:
+
+- **Cross-contract state reads in the transform.** If we needed to call `EndpointV2.getConfig()` at each block (the way the `uln302-config-changes` pipe reads pre-state via a side-channel), wallet-backfill would still queue the right blocks but the transform might miss state at block N-1 where the side contract didn't have activity. Block-range gives broader access. Not a problem here — we don't do that.
+- **Multi-address filter that includes addresses with rare activity.** If the filter were `[EndpointV2, SomeOtherContract]` and we wanted both to be covered, we'd need a separate wallet-backfill call per address, or a block-range backfill that catches both. For our single-address filter, n/a.
+- **Strict time window.** Wallet-backfill is all-history. If we wanted "last 30 days only" specifically, block-range with `beatStart`/`beatEnd` is the right tool. We don't, so we're fine.
+
+Net: same transformation, same output, fewer blocks scanned. Order-of-magnitude cost reduction expected on the index side.
 
 ## Volume + cost expectations
 
-Spot-check from a recent 5,000-block window on mainnet shows roughly **5–15 PacketSent events per block** during normal cross-chain activity. That's in the ballpark of:
+Spot-check from a recent 5,000-block window on mainnet shows roughly **5–15 PacketSent events per block during blocks that have EndpointV2 activity**. The wallet-backfill endpoint only processes those blocks, so we sidestep the ~95% of mainnet blocks that don't touch EndpointV2 at all.
 
-| Backfill scope | Expected rows | Backfill runtime (rough) |
-|---|---|---|
-| Last 1,000 blocks (~3.5 hr) | ~5K–15K | minutes |
-| Last 24 hr (~7,200 blocks) | ~36K–108K | tens of minutes |
-| Last 90 days (~648K blocks) | ~3.2M–9.7M | hours; possibly many |
+Per Brock's guidance, switching from block-range backfill (~648K blocks scanned for 90 days) to wallet-backfill probably reduces actual processed-block count by an order of magnitude or more. Final row count is comparable (each EndpointV2 block still emits 5–15 PacketSent events on average) but the index-side scan cost should drop dramatically.
 
-**This is meaningfully heavier than the config-changes pipe** (which had ~1,200 rows over 90 days). Brock — please double-check the Indexing Co billing/metering implications before kicking off the 90-day backfill.
+**This is meaningfully heavier than the config-changes pipe** (which had ~1,200 rows over 90 days). Brock — please confirm the wallet-backfill metering before kicking off the all-history run.
 
 ## Engineering notes inherited from `uln302-config-changes`
 
@@ -97,8 +124,8 @@ The fifth (JSONB columns must hold objects, not arrays) doesn't apply here — `
 
 ## Open questions for Brock
 
-1. **Volume billing.** I haven't run the numbers against current Indexing Co metering. Please sanity-check before the 90-day backfill.
-2. **Network expansion.** Mainnet only here. The same EndpointV2 address works on every chain LayerZero V2 supports, but L2 backfills will be much heavier. Worth doing one chain at a time.
+1. **~~Volume billing~~ — addressed via wallet-backfill (Brock's review).** Switched the recipe from block-range to `POST /dw/pipelines/{name}/backfill/{address}`. Still: please confirm the wallet-backfill metering before triggering all-history.
+2. **Network expansion.** Mainnet only here. The same EndpointV2 address works on every chain LayerZero V2 supports, but L2 wallet-backfills will still produce more rows because L2s see more cross-chain volume. Worth doing one chain at a time.
 3. **Receiver decoding.** I store `receiver_bytes32` as the full 32-byte hex. EVM destinations have the address in the last 20 bytes; non-EVM destinations encode something else. The dashboard can derive the EVM-address slice when rendering. Acceptable, or do you want the column split into a typed `receiver_address` for EVM destinations only?
 4. **Message body.** I store `message_size` (bytes) but not the message itself. Storage cost was the reason; if there's a clear use case for keeping the full payload (per-OFT amount tracking, e.g.) we can add a separate column or a separate pipe. My instinct: separate pipe per OApp standard.
 
