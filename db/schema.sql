@@ -164,3 +164,27 @@ CREATE TABLE IF NOT EXISTS governance_votes (
 );
 
 CREATE INDEX IF NOT EXISTS idx_votes_proposal ON governance_votes (proposal_id, block DESC);
+
+-- ============================================================================
+-- oapp_metadata: human-readable name/symbol/decimals per OApp address.
+-- Populated by scripts/seed-oapp-metadata.mjs which iterates the distinct
+-- oapp values in `oapp_uln_config_changes` and calls name() / symbol() /
+-- decimals() on each via mainnet RPC.
+--
+-- Best-effort: many OApps are ERC-20-compatible OFTs and resolve cleanly,
+-- but not all do (some are non-standard). When the calls revert, we still
+-- write a row with `is_erc20=false` so we don't keep retrying.
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS oapp_metadata (
+  oapp           TEXT        PRIMARY KEY,
+  chain          TEXT        NOT NULL DEFAULT 'ethereum',
+  name           TEXT,
+  symbol         TEXT,
+  decimals       SMALLINT,
+  is_erc20       BOOLEAN     NOT NULL DEFAULT FALSE,
+  resolved_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  notes          TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_oapp_metadata_symbol ON oapp_metadata (symbol);
