@@ -1,0 +1,7 @@
+{
+  "_comment_purpose": "Filter values for the layerzero-v2-packets-sent pipeline. Apply with `POST /dw/filters/layerzero-v2-endpoint-mainnet`. The address(es) here gate WHICH log emitters reach the transform. PacketSent fires on EndpointV2 only, so we list its mainnet address. EndpointV2 is deployed at the same address on every chain LayerZero V2 supports — extending to other networks is purely a `networks` list change in pipeline.json + adding the same address here is a no-op.",
+  "_comment_choosing_filter_scope": "We deliberately filter by EndpointV2 (one address) rather than by per-OApp addresses. The whole point of this pipe is auto-discovery — every OApp that sends a cross-chain message via LayerZero V2 lands in our table without any registry. If we were chasing only specific OApps we'd narrow this; we are not.",
+  "values": [
+    "0x1a44076050125825900e736c501f859c50fE728c"
+  ]
+}

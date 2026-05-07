@@ -1,0 +1,26 @@
+{
+  "_comment_purpose": "Indexing Co pipeline definition. Deploy with `POST /dw/pipelines/`. Reads PacketSent events emitted by EndpointV2, runs them through the transform (transform.js), writes one row per event to oapp_packets_sent in Neon.",
+
+  "_comment_filterKeys_gotcha": "filterKeys is a POST-filter on output ROW fields, not an input filter on incoming blocks. Our transform always emits rows whose contract_address is the EndpointV2 address (we hard-code it in transform.js to keep behaviour identical to what the filter implies). If a row ever lands with contract_address = something else, the filter drops it on the way out. Belt + braces.",
+
+  "_comment_unique_keys": "uniqueKeys = (chain, tx_hash, log_index) makes inserts idempotent. Re-triggering a backfill on overlapping ranges is safe.",
+
+  "_comment_postgres_endpoint": "connectionUri MUST be the UNPOOLED Neon endpoint (DATABASE_URL_DIRECT, host without `-pooler`). Pooled endpoint silently drops Indexing Co writes — see the existing knowledge note in Cortex memory.",
+
+  "_comment_networks": "Mainnet only for the first pass. Adding L2s is a one-line change here; same EndpointV2 address works on every chain. But L2 PacketSent volume is much higher — back-of-envelope: Arbitrum could be 5-10x mainnet. Get a sense from the mainnet backfill runtime first before committing budget for L2s.",
+
+  "_comment_for_brock": "Pre-deploy checklist: (1) confirm DATABASE_URL_DIRECT in env / Render-style secret store, (2) run schema.sql against the destination DB, (3) hit POST /dw/filters/layerzero-v2-endpoint-mainnet with filter.json, (4) hit POST /dw/transformations/layerzero-v2-packets-sent with transform.js, (5) test the transform via /dw/transformations/test against a known PacketSent block (any recent mainnet block usually has 5+), (6) deploy this pipeline, (7) trigger a small backfill (~1000 blocks) to verify rows arrive, (8) only then trigger the 90-day range. See README.md for the exact commands.",
+
+  "name": "layerzero-v2-packets-sent",
+  "transformation": "layerzero-v2-packets-sent",
+  "filter": "layerzero-v2-endpoint-mainnet",
+  "filterKeys": ["contract_address"],
+  "networks": ["ethereum"],
+  "enabled": true,
+  "delivery": {
+    "adapter": "POSTGRES",
+    "connectionUri": "${DATABASE_URL_DIRECT}",
+    "table": "oapp_packets_sent",
+    "uniqueKeys": ["chain", "tx_hash", "log_index"]
+  }
+}
