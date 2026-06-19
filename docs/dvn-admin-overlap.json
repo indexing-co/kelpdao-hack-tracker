@@ -1,0 +1,78 @@
+{
+  "readAt": "2026-05-07T17:25:21.407Z",
+  "latestBlock": "25044634",
+  "adminRoleBytes32": "0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775",
+  "dvns": {
+    "LayerZero Labs": {
+      "adminCount": 24,
+      "eventCount": 82,
+      "admins": [
+        "0x9f403140bc0574d7d36ea472b82daa1bbd4ef327",
+        "0xb8ff877ed78ba520ece21b1de7843a8a57ca47cb",
+        "0x1a97e24aec61b9850ffd91d801de332d56b7ac13",
+        "0x5e7d521a50be4a0913b613dabdd78c3f2ab3d796",
+        "0xa3a6a3719f04e691eed63eff837e2438e2449be1",
+        "0xdcbe2ecd5339c81d78b8d03b699da9970aec3b3a",
+        "0x9357f44b7bd9fd54833974d0c445321b9cbaa04e",
+        "0xc55148b71a11e2ce87f60d74ed26a5e7c3099f22",
+        "0x6647c218f0316b8af944d799c00f668cc0022693",
+        "0xf5faa00911f5c4525bcfd7391455920e4a6615f6",
+        "0xd3a227725c3eae3681eb2817ef6c09200ba46a3f",
+        "0xf77f53c7c2f930b5fac7e00a99f94ab3639533e7",
+        "0x6c01050d46c98ba23d952c424fe032dc839380f5",
+        "0xd95d7761a585bbc1b59b4b6f441b9edc2878dade",
+        "0xf41300586910a8b481aa08667bd27d3146fbf120",
+        "0xea0aecc0442bb1ee4e1c141f4d52129e0d7abf64",
+        "0x257cd69b0069494240757c66e6aa341ec578b3e1",
+        "0x2390bbee104faaed941a17492b5ebf2bed206973",
+        "0x29f7338c822a2f2e3cfe44e649e5959c1e5c62e7",
+        "0x67f0ddb1036e65670be717545b69824e2ff4a6f6",
+        "0xdf37aa46f47f999ebca1a983749f2ba46dada940",
+        "0xcf9250f665d6168b6ada8ec163ac41a1168101cf",
+        "0x67f694fb261b2d36b3635b0d6f60b3c6125b41ed",
+        "0xc1973653d87f58a9497ee9dcb925a66291aa2159"
+      ]
+    },
+    "Nethermind": {
+      "adminCount": 17,
+      "eventCount": 17,
+      "admins": [
+        "0xb52fa54fc261398058c3ac7b8dd442d7d8b9f0b6",
+        "0xb8ff877ed78ba520ece21b1de7843a8a57ca47cb",
+        "0xd3a227725c3eae3681eb2817ef6c09200ba46a3f",
+        "0x6c01050d46c98ba23d952c424fe032dc839380f5",
+        "0xf77f53c7c2f930b5fac7e00a99f94ab3639533e7",
+        "0xd95d7761a585bbc1b59b4b6f441b9edc2878dade",
+        "0xf5faa00911f5c4525bcfd7391455920e4a6615f6",
+        "0xea0aecc0442bb1ee4e1c141f4d52129e0d7abf64",
+        "0xf41300586910a8b481aa08667bd27d3146fbf120",
+        "0x29f7338c822a2f2e3cfe44e649e5959c1e5c62e7",
+        "0x2390bbee104faaed941a17492b5ebf2bed206973",
+        "0x257cd69b0069494240757c66e6aa341ec578b3e1",
+        "0xc1973653d87f58a9497ee9dcb925a66291aa2159",
+        "0x67f694fb261b2d36b3635b0d6f60b3c6125b41ed",
+        "0xcf9250f665d6168b6ada8ec163ac41a1168101cf",
+        "0x67f0ddb1036e65670be717545b69824e2ff4a6f6",
+        "0xdf37aa46f47f999ebca1a983749f2ba46dada940"
+      ]
+    }
+  },
+  "sharedAdmins": [
+    "0xb8ff877ed78ba520ece21b1de7843a8a57ca47cb",
+    "0xf5faa00911f5c4525bcfd7391455920e4a6615f6",
+    "0xd3a227725c3eae3681eb2817ef6c09200ba46a3f",
+    "0xf77f53c7c2f930b5fac7e00a99f94ab3639533e7",
+    "0x6c01050d46c98ba23d952c424fe032dc839380f5",
+    "0xd95d7761a585bbc1b59b4b6f441b9edc2878dade",
+    "0xf41300586910a8b481aa08667bd27d3146fbf120",
+    "0xea0aecc0442bb1ee4e1c141f4d52129e0d7abf64",
+    "0x257cd69b0069494240757c66e6aa341ec578b3e1",
+    "0x2390bbee104faaed941a17492b5ebf2bed206973",
+    "0x29f7338c822a2f2e3cfe44e649e5959c1e5c62e7",
+    "0x67f0ddb1036e65670be717545b69824e2ff4a6f6",
+    "0xdf37aa46f47f999ebca1a983749f2ba46dada940",
+    "0xcf9250f665d6168b6ada8ec163ac41a1168101cf",
+    "0x67f694fb261b2d36b3635b0d6f60b3c6125b41ed",
+    "0xc1973653d87f58a9497ee9dcb925a66291aa2159"
+  ]
+}
